@@ -89,4 +89,14 @@
 	}];
 }
 
++ (NSArray *) allRestorationIDs
+{
+	return [REDownloadTasksQueueSerializer allRestorationIDs];
+}
+
++ (void) removeRestorationIdentifier:(NSString *) restorationID
+{
+	[REDownloadTasksQueueSerializer removeRestorationData:restorationID];
+}
+
 @end

@@ -39,4 +39,7 @@
 
 + (void) removeRestorationData:(NSString *) restorationID;
 
++ (NSArray *) allRestorationIDs;
+
+
 @end

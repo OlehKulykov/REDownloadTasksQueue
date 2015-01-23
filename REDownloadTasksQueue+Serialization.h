@@ -31,6 +31,8 @@
 /**
  @brief Cancel all tasks and serialize left(unfinished) tasks and returns restoration identifier.
  @detailed Store tasks localy for future resuming with restoration identifier(you should keep it).
+ When you call this method you will return immediately and serialization will continue in 'background queue'.
+ And after finishing handler will be called in 'main queue'
  @param handler Handler for informing done serializing with restoration identifier. If handler is nil - do nothing.
  */
 - (void) cancelAndSerializeWithRestorationID:(void(^)(NSString * restorationID)) handler;
@@ -38,10 +40,28 @@
 
 /**
  @brief Creates new queue from stored restoration data by it's identifier.
- @param restorationID Stored tasks restoration identifier goted from 'cancelAndSerializeWithRestorationID' method.
+ When you call this method you will return immediately and creating/restoring will continue in 'high priority queue'.
+ And after finishing handler will be called in 'main queue'
+ @param restorationID Stored tasks restoration identifier goted from 'cancelAndSerializeWithRestorationID' or 'allRestorationIDs' methods.
  @param handler Completion handler returned restored queue.
  */
 + (void) createWithRestorationID:(NSString *) restorationID
 			andCompletionHandler:(void(^)(REDownloadTasksQueue * queue, NSError * error)) handler;
+
+
+/**
+ @brief Return all stored restoration identifiers.
+ @return Array with restoration identifier strings or nil if nothing present.
+ */
++ (NSArray *) allRestorationIDs;
+
+
+/**
+ @brief Deletes stored data asociated with restoration identifier.
+ @detailed After calling this method restoration identifier will be unused.
+ @param restorationID The restoration restoration identifier goted by 'cancelAndSerializeWithRestorationID' or
+ 'allRestorationIDs' methods.
+ */
++ (void) removeRestorationIdentifier:(NSString *) restorationID;
 
 @end

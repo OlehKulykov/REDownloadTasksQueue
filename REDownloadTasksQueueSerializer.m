@@ -85,11 +85,43 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 + (void) removeRestorationData:(NSString *) restorationID
 {
-	NSString * path = restorationID ? [[REDownloadTasksQueueSerializer storeFolder] stringByAppendingPathComponent:restorationID] : nil;	
+	NSString * path = restorationID ? [[REDownloadTasksQueueSerializer storeFolder] stringByAppendingPathComponent:restorationID] : nil;
 	if (path) 
 	{
 		[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 	}
+}
+
++ (NSArray *) allRestorationIDs
+{
+	NSString * path = [REDownloadTasksQueueSerializer storeFolder];
+	if (path) 
+	{
+		BOOL isDir = NO;
+		if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) 
+		{
+			if (isDir) 
+			{
+				NSError * error = nil;
+				NSArray * contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
+				NSMutableArray * ids = nil;
+				if (contents && [contents count] > 0) 
+				{
+					for (NSString * p in contents) 
+					{
+						NSString * last = [p lastPathComponent];
+						if (last) 
+						{
+							if (ids) [ids addObject:last];
+							else ids = [NSMutableArray arrayWithObject:last];
+						}
+					}
+				}
+				return ids;
+			}
+		}		
+	}
+	return nil;
 }
 
 - (NSMutableArray *) deserializeTasksForSession:(NSURLSession *) session
