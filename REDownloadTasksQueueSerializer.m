@@ -126,29 +126,29 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 - (NSMutableArray *) deserializeTasksForSession:(NSURLSession *) session
 {
-	if (!_folderPath || !_restorationID || !session) return NO;
+	if (!_folderPath || !_restorationID || !session) return nil;
 	NSString * path = [_folderPath stringByAppendingPathComponent:_restorationID];
-	if (!path) return NO;
+	if (!path) return nil;
 	
 	NSError * error = nil;
 	NSData * data = [NSData dataWithContentsOfFile:path options:NSDataReadingUncached error:&error];
-	if (!data || error)	return NO;
+	if (!data || error)	return nil;
 	
 	NSDictionary * dict = [REDownloadTasksQueueSerializer dictionaryWithData:data];
-	if (!dict) return NO;
+	if (!dict) return nil;
 	data = nil;
 	
 	id value = [dict objectForKey:kDownloadTasksQueueTotalKey];
 	if (value) self.total = [(NSNumber *)value doubleValue];
-	else return NO;
+	else return nil;
 	
 	value = [dict objectForKey:kDownloadTasksQueueDoneKey];
 	if (value) self.done = [(NSNumber *)value doubleValue];
-	else return NO;
+	else return nil;
 	
 	NSArray * infosArray = [dict objectForKey:kDownloadTasksQueueInfosArrayKey];
 	const NSUInteger count = infosArray ? [infosArray count] : 0;
-	if (count == 0) return NO;
+	if (count == 0) return nil;
 	
 	NSMutableArray * infos = [NSMutableArray arrayWithCapacity:count];
 	for (NSDictionary * infoDict in infosArray) 
