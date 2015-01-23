@@ -10,6 +10,7 @@
 - Possibility to inform about queue state via delegate, blocks and notifications. Can be selected which method to use.
 - Progress calculating on downloaded data size per each task, not on simple count of tasks, for smoothly progressing.
 - Queue can be serialized/deserialized for future reusing.
+- Required ARC.
 
 ### Create and fill queue with URL's
 ```objective-c
