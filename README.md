@@ -124,7 +124,7 @@ for (...) // iterate URL's
 ```
 
 
-### Serialize queue for future resusing, for example: after restart application
+### Serialize queue for future reusing
 ```objective-c
 __weak SomeClassWhichHoldsQueue * weakSelf = self;
 [_queue cancelAndSerializeWithRestorationID:^(NSString * restorationID){
@@ -133,7 +133,7 @@ __weak SomeClassWhichHoldsQueue * weakSelf = self;
 		}];
 ```
 
-### Deserialize queue with restoration identifier
+### Deserialize queue with restoration identifier, for example: after restart application
 ```objective-c
 __weak SomeClassWhichHoldsQueue * weakSelf = self;
 [REDownloadTasksQueue createWithRestorationID:weakSelf.restorationID 
