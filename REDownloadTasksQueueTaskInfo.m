@@ -160,6 +160,12 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	return _storePath ? [NSURL fileURLWithPath:_storePath isDirectory:NO] : nil;
 }
 
+- (NSURL *) originalURL
+{
+	NSURLRequest * request = _task ? [_task originalRequest] : nil;
+	return request ? [request URL] : nil;
+}
+
 - (NSUInteger) taskIdentifier
 {
 	return _task ? [_task taskIdentifier] : 0;

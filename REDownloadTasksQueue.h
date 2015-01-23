@@ -111,10 +111,11 @@ RE_EXTERN NSString * const kREDownloadTasksQueueProgressChangedNotification;
 
 /**
  @brief Arrived on error.
- User info dictionary is: @{@"queue" : REDownloadTasksQueue, @"userObject" : UserObject, @"error" : NSError object, @"storeURL" : NSURL object}. 
+ User info dictionary is: @{@"queue" : REDownloadTasksQueue, @"userObject" : UserObject, @"error" : NSError object, @"downloadURL" : NSURL object, @"storeURL" : NSURL object}. 
  @warning Key = kREDownloadTasksQueueQueueKey; Value = DownloadTasksQueue object.
  @warning Key = kREDownloadTasksQueueUserObjectKey;  Value = user object or [NSNull null]
  @warning Key = kREDownloadTasksQueueErrorKey; Value = 'NSError' object.
+ @warning Key = kREDownloadTasksQueueDownloadURLKey; Value = 'NSURL' object.
  @warning Key = kREDownloadTasksQueueStoreURLKey; Value = 'NSURL' object.
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueErrorNotification;
@@ -158,10 +159,17 @@ RE_EXTERN NSString * const kREDownloadTasksQueueErrorKey;
 
 
 /**
- @brief Key used for store file URL object.
+ @brief Key used for store file URL object. To URL.
  @detailed Value is @"storeURL".
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueStoreURLKey;
+
+
+/**
+ @brief Key used for download URL object. From URL.
+ @detailed Value is @"downloadURL".
+ */
+RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 
 /**
@@ -232,7 +240,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueStoreURLKey;
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onErrorOccurredHandler)(REDownloadTasksQueue * queue, NSError * error, NSURL * storeFilePathURL);
+@property (nonatomic, copy) void(^onErrorOccurredHandler)(REDownloadTasksQueue * queue, NSError * error, NSURL * downloadURL, NSURL * storeFilePathURL);
 
 
 /**

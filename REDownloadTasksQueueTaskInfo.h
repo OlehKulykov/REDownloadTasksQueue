@@ -39,6 +39,8 @@
 
 - (NSURL *) storeURL;
 
+- (NSURL *) originalURL;
+
 - (NSUInteger) taskIdentifier;
 
 - (BOOL) moveToDestivationFromURL:(NSURL *) fromURL

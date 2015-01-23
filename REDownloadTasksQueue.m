@@ -38,6 +38,7 @@ NSString * const kREDownloadTasksQueueUserObjectKey = @"userObject";
 NSString * const kREDownloadTasksQueueQueueKey = @"queue";
 NSString * const kREDownloadTasksQueueErrorKey = @"error";
 NSString * const kREDownloadTasksQueueStoreURLKey = @"storeURL";
+NSString * const kREDownloadTasksQueueDownloadURLKey = @"downloadURL";
 
 @implementation REDownloadTasksQueue
 
@@ -176,18 +177,20 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	if (_lastError || !error || !info || _reportType == REDownloadTasksQueueReportNone) return;
 	self.lastError = error;
 	
-	NSURL * url = [info storeURL];
+	NSURL * to = [info storeURL];
+	NSURL * from = [info originalURL];
 	NSDictionary * userInfo = nil;
 	if (_reportType & REDownloadTasksQueueReportViaNotifications)
 	{
 		userInfo = @{ kREDownloadTasksQueueQueueKey : self,
 					  kREDownloadTasksQueueUserObjectKey : _userObject ? _userObject : [NSNull null],
 					  kREDownloadTasksQueueErrorKey : error,
-					  kREDownloadTasksQueueStoreURLKey : url };
+					  kREDownloadTasksQueueDownloadURLKey: from,
+					  kREDownloadTasksQueueStoreURLKey : to };
 	}
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_onErrorOccurredHandler && (_reportType & REDownloadTasksQueueReportViaBlocks)) _onErrorOccurredHandler(self, error, url);
+		if (_onErrorOccurredHandler && (_reportType & REDownloadTasksQueueReportViaBlocks)) _onErrorOccurredHandler(self, error, from, to);
 		if (userInfo) [[NSNotificationCenter defaultCenter] postNotificationName:kREDownloadTasksQueueErrorNotification 
 																		  object:self
 																		userInfo:userInfo];
