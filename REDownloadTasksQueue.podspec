@@ -16,7 +16,7 @@ iOS Objective-C download queue based on NSURLSessionDownloadTask's.
   s.platform     = :ios, "7.0"
 
 # Build  
-  s.public_header_files = 'REDownloadTasksQueue.h'
+  s.public_header_files = 'REDownloadTasksQueue.h', 'REDownloadTasksQueue+Serialization.h'
   s.source_files = '*.{h,m}'
   
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/REDownloadTasksQueue"' }
