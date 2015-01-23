@@ -23,10 +23,24 @@
 
 #import "REDownloadTasksQueue.h"
 
+/**
+ @brief Serialization and deserialization features.
+ */
 @interface REDownloadTasksQueue (Serialization)
 
+/**
+ @brief Cancel all tasks and serialize left(unfinished) tasks and returns restoration identifier.
+ @detailed Store tasks localy for future resuming with restoration identifier(you should keep it).
+ @param handler Handler for informing done serializing with restoration identifier. If handler is nil - do nothing.
+ */
 - (void) cancelAndSerializeWithRestorationID:(void(^)(NSString * restorationID)) handler;
 
+
+/**
+ @brief Creates new queue from stored restoration data by it's identifier.
+ @param restorationID Stored tasks restoration identifier goted from 'cancelAndSerializeWithRestorationID' method.
+ @param handler Completion handler returned restored queue.
+ */
 + (void) createWithRestorationID:(NSString *) restorationID
 			andCompletionHandler:(void(^)(REDownloadTasksQueue * queue, NSError * error)) handler;
 

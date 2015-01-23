@@ -83,7 +83,6 @@
 - (void) cancelAndSerializeWithRestorationID:(void(^)(NSString * restorationID)) handler
 {
 	if (!handler) return;
-	_isCanceled = YES;
 	
 	[self cancelWithCompletionHandler:^{
 		[self serializeWithRestorationID:handler];
