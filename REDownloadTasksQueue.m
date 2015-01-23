@@ -143,11 +143,15 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 				  kREDownloadTasksQueueProgressKey : [NSNumber numberWithFloat:progress] };
 	}
 	
+	id<REDownloadTasksQueueDelegate> d = self.delegate;
+	if (d && ![d respondsToSelector:@selector(onREDownloadTasksQueue:progress:)]) d = nil;
+	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		if (_onProgressHandler && (_reportType & REDownloadTasksQueueReportViaBlocks)) _onProgressHandler(self, progress);
 		if (info) [[NSNotificationCenter defaultCenter] postNotificationName:kREDownloadTasksQueueProgressChangedNotification 
 																	  object:self
 																	userInfo:info];
+		if (d) [d onREDownloadTasksQueue:self progress:progress];
 	});
 }
 
@@ -163,11 +167,15 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 				  kREDownloadTasksQueueUserObjectKey : _userObject ? _userObject : [NSNull null] };
 	}
 	
+	id<REDownloadTasksQueueDelegate> d = self.delegate;
+	if (d && ![d respondsToSelector:@selector(onREDownloadTasksQueueFinished:)]) d = nil;
+	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		if (_onFinishedHandler && (_reportType & REDownloadTasksQueueReportViaBlocks)) _onFinishedHandler(self);
 		if (info) [[NSNotificationCenter defaultCenter] postNotificationName:kREDownloadTasksQueueDidFinishedNotification 
 																	  object:self
 																	userInfo:info];
+		if (d) [d onREDownloadTasksQueueFinished:self];
 	});
 }
 
@@ -177,23 +185,27 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	if (_lastError || !error || !info || _reportType == REDownloadTasksQueueReportNone) return;
 	self.lastError = error;
 	
-	NSURL * to = [info storeURL];
-	NSURL * from = [info originalURL];
+	NSURL * toURL = [info storeURL];
+	NSURL * fromURL = [info originalURL];
 	NSDictionary * userInfo = nil;
 	if (_reportType & REDownloadTasksQueueReportViaNotifications)
 	{
 		userInfo = @{ kREDownloadTasksQueueQueueKey : self,
 					  kREDownloadTasksQueueUserObjectKey : _userObject ? _userObject : [NSNull null],
 					  kREDownloadTasksQueueErrorKey : error,
-					  kREDownloadTasksQueueDownloadURLKey: from,
-					  kREDownloadTasksQueueStoreURLKey : to };
+					  kREDownloadTasksQueueDownloadURLKey: fromURL,
+					  kREDownloadTasksQueueStoreURLKey : toURL };
 	}
 	
+	id<REDownloadTasksQueueDelegate> d = self.delegate;
+	if (d && ![d respondsToSelector:@selector(onREDownloadTasksQueue:error:downloadURL:storeURL:)]) d = nil;
+	
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_onErrorOccurredHandler && (_reportType & REDownloadTasksQueueReportViaBlocks)) _onErrorOccurredHandler(self, error, from, to);
+		if (_onErrorOccurredHandler && (_reportType & REDownloadTasksQueueReportViaBlocks)) _onErrorOccurredHandler(self, error, fromURL, toURL);
 		if (userInfo) [[NSNotificationCenter defaultCenter] postNotificationName:kREDownloadTasksQueueErrorNotification 
 																		  object:self
 																		userInfo:userInfo];
+		if (d) [d onREDownloadTasksQueue:self error:error downloadURL:fromURL storeURL:toURL];
 	});
 }
 

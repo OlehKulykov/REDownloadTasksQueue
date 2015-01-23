@@ -172,14 +172,62 @@ RE_EXTERN NSString * const kREDownloadTasksQueueStoreURLKey;
 RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 
+@class REDownloadTasksQueue;
+
+
+/**
+ @brief Protocol of the download rasks queue delegate. All methods are optinal and called from 'main queue'.
+ @detailed Delegate will called only if available.
+ */
+@protocol REDownloadTasksQueueDelegate <NSObject>
+
+@optional
+/**
+ @brief Called when all queue tasks finished.
+ @param queue The download queue object.
+ */
+- (void) onREDownloadTasksQueueFinished:(REDownloadTasksQueue *) queue;
+
+
+/**
+ @brief Called when downloading progress changed.
+ @param queue The download queue object.
+ @param progress Downloading progress in range from 0 to 1, [0, 1].
+ */
+- (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue 
+					   progress:(float) progress;
+
+
+/**
+ @brief Called when error oqupaed.
+ @param queue The download queue object.
+ @param error The error object.
+ @param downloadURL Downloaded URL.
+ @param storeURL URL for storing downloaded data.
+ */
+- (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue 
+						  error:(NSError *) error 
+					downloadURL:(NSURL *) downloadURL 
+					   storeURL:(NSURL *) storeURL;
+
+@end
+
+
 /**
  @brief Class of the queue based on NSURLSessionDownloadTask tasks.
  */
 @interface REDownloadTasksQueue : NSObject
 
+
+/**
+ @brief Weak queue delegate.
+ */
+@property (nonatomic, weak) id<REDownloadTasksQueueDelegate> delegate;
+
+
 /**
  @brief Type of reporting using binary OR flags. Use REDownloadTasksQueueReportType values.
- @detailed Default is both methods for reporting.
+ @detailed Default is both methods for reporting and will be used if available.
  */
 @property (nonatomic, assign, readwrite) NSUInteger reportType;
 
