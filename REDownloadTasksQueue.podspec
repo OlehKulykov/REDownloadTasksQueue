@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
 # Common settings
   s.name         = "REDownloadTasksQueue"
-  s.version      = "0.1.0"
+  s.version      = "0.1.1"
   s.summary      = "iOS Objective-C download queue based on NSURLSessionDownloadTask's"
   s.description  = <<-DESC
 iOS Objective-C download queue based on NSURLSessionDownloadTask's.
