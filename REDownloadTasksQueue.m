@@ -90,9 +90,9 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	
 	pthread_mutex_lock(&_mutex);
 	NSArray * infosArray = self.infos;
-	if (infosArray && (_active < _parallelTasksCount)) 
+	if (infosArray && (_active < _numberResumed)) 
 	{		
-		const NSUInteger needStart = _parallelTasksCount - _active;
+		const NSUInteger needStart = _numberResumed - _active;
 		NSUInteger started = 0;
 		for (REDownloadTasksQueueTaskInfo * info in infosArray) 
 		{
@@ -133,8 +133,6 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	if (_reportType == REDownloadTasksQueueReportNone) return;
 	
 	const float progress = [self downloadProgress];
-	
-	_DEBUG_LOGA(@"%@ progress: %f %%", NSStringFromClass([self class]), progress)
 	
 	NSDictionary * info = nil;
 	if (_reportType & REDownloadTasksQueueReportViaNotifications)
@@ -200,7 +198,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 {
 	if (!url) return NO;
 	if ([url isFileURL] || [url isFileReferenceURL]) return NO;
-	if (NSStringIsEmpty(storePath)) return NO;
+	if (!storePath || [storePath length] == 0) return NO;
 	
 	NSMutableURLRequest * request = [[NSMutableURLRequest alloc] initWithURL:url 
 																 cachePolicy:_cachePolicy
@@ -301,21 +299,40 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	return (float)p;
 }
 
-- (NSUInteger) numberOfParallelTasks
+- (NSUInteger) numberOfResumedTasks
 {
 	NSUInteger number = 0;
 	pthread_mutex_lock(&_mutex);
-	number = _parallelTasksCount;
+	number = _numberResumed;
 	pthread_mutex_unlock(&_mutex);
 	return number;
 }
 
-- (void) setNumberOfParallelTasks:(NSUInteger) value
+- (void) setNumberOfResumedTasks:(NSUInteger) value
 {
 	if (value > 0 && value <= 64) 
 	{
 		pthread_mutex_lock(&_mutex);
-		_parallelTasksCount = value;
+		_numberResumed = value;
+		pthread_mutex_unlock(&_mutex);
+	}
+}
+
+- (NSUInteger) numberOfMaximumConcurrentTasks
+{
+	NSUInteger number = 0;
+	pthread_mutex_lock(&_mutex);
+	number = self.operationQueue.maxConcurrentOperationCount;
+	pthread_mutex_unlock(&_mutex);
+	return number;
+}
+
+- (void) setNumberOfMaximumConcurrentTasks:(NSUInteger) value
+{
+	if (value > 0 && value <= 32) 
+	{
+		pthread_mutex_lock(&_mutex);
+		self.operationQueue.maxConcurrentOperationCount = value;
 		pthread_mutex_unlock(&_mutex);
 	}
 }
@@ -326,7 +343,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	_total = 0;
 	_done = 0;
 	_active = 0;
-	_parallelTasksCount = 4;
+	_numberResumed = 4;
 	_cachePolicy = kREDownloadTasksQueueDefaultRequestCachePolicy;
 	_timeoutInterval = kREDownloadTasksQueueDefaultRequestTimeout;
 	_isCanceled = NO;
@@ -382,10 +399,11 @@ didFinishDownloadingToURL:(NSURL *) location
 		{
 			[_infos removeObject:info];
 			
-			if (NSArrayIsEmpty(_infos)) 
+			BOOL isFinished = NO;
+			if (!_infos || [_infos count] == 0) 
 			{
 				_done = _total;
-				[self reportFinished];
+				isFinished = YES;
 			}
 			else
 			{
@@ -404,6 +422,7 @@ didFinishDownloadingToURL:(NSURL *) location
 				[self startNextTask];
 			}
 			[self reportProgress];
+			if (isFinished) [self reportFinished];
 		}
 		else
 		{

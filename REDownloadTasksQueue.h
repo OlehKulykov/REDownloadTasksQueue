@@ -49,43 +49,52 @@
 #endif
 
 
-#if (defined(DEBUG) || defined(_DEBUG)) && !defined(_DEBUG_LOG) && !defined(_DEBUG_LOGA)
-#  define _DEBUG_LOG(s) NSLog(s); 
-#  define _DEBUG_LOGA(s, ...) NSLog(s, ##__VA_ARGS__); 
-#else
-#  define _DEBUG_LOG(s)  
-#  define _DEBUG_LOGA(s, ...)  
+#if !defined(_DEBUG_LOG) && !defined(_DEBUG_LOGA)
+#  if defined(DEBUG) || defined(_DEBUG)
+#    define _DEBUG_LOG(s) NSLog(s); 
+#    define _DEBUG_LOGA(s, ...) NSLog(s, ##__VA_ARGS__); 
+#  else
+#    define _DEBUG_LOG(s)  
+#    define _DEBUG_LOGA(s, ...)  
+#  endif
 #endif
 
 
+/**
+ @brief Reporting type of the queue.
+ */
 typedef NS_ENUM(NSUInteger, REDownloadTasksQueueReportType) 
 {
 	/**
-	 @brief Silent mode.
+	 @brief Silent mode. In this case notifications and callback will be ignored.
 	 */
 	REDownloadTasksQueueReportNone = 0,
 	
+	
 	/**
 	 @brief Reporting using 'NSNotificationCenter defaultCenter'.
+	 @detailed In this case use notifications for listening queue.
 	 */
 	REDownloadTasksQueueReportViaNotifications = 1 << 0,
 	
 	
 	/**
-	 @brief Reporting using blocks.
+	 @brief Reporting using blocks, of cource if blocks provided.
 	 */
 	REDownloadTasksQueueReportViaBlocks = 1 << 1
 };
 
 
 /**
- @brief 40 sec.
+ @brief Default timeout of the download requests.
+ @detailed Value is 40 seconds.
  */
 RE_EXTERN const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout;
 
 
 /**
- @brief NSURLRequestReloadIgnoringCacheData.
+ @brief Default cache policy used for the download requests.
+ @detailed Value is NSURLRequestReloadIgnoringCacheData.
  */
 RE_EXTERN const NSURLRequestCachePolicy kREDownloadTasksQueueDefaultRequestCachePolicy;
 
@@ -121,85 +130,160 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDidFinishedNotification;
 
 
 /**
- @brief @"queue"
+ @brief Key used for download queue.
+ @detailed Value is @"queue".
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueQueueKey;
 
 
 /**
- @brief @"progress"
+ @brief Key used for download progress.
+ @detailed Value is @"progress".
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueProgressKey;
 
 
 /**
- @brief @"userObject"
+ @brief Key used for queue user object.
+ @detailed Value is @"userObject".
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueUserObjectKey;
 
 
 /**
- @brief @"error"
+ @brief Key used for queue error.
+ @detailed Value is @"error".
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueErrorKey;
 
 
 /**
- @brief @"storeURL"
+ @brief Key used for store file URL object.
+ @detailed Value is @"storeURL".
  */
 RE_EXTERN NSString * const kREDownloadTasksQueueStoreURLKey;
 
 
+/**
+ @brief Class of the queue based on NSURLSessionDownloadTask tasks.
+ */
 @interface REDownloadTasksQueue : NSObject
 
 /**
- @brief Type of reporting using binary OR flags. DownloadTasksQueueReportType
+ @brief Type of reporting using binary OR flags. Use REDownloadTasksQueueReportType values.
  @detailed Default is both methods for reporting.
  */
 @property (nonatomic, assign, readwrite) NSUInteger reportType;
 
 
 /**
- @brief Default value is kREDownloadTasksQueueDefaultRequestCachePolicy.
+ @brief Cache policy of the requests. Used when some url is adding to queue.
+ @detailed Default value is kREDownloadTasksQueueDefaultRequestCachePolicy.
  */
 @property (nonatomic, assign, readwrite) NSURLRequestCachePolicy cachePolicy;
 
 
 /**
- @brief  Default value kREDownloadTasksQueueDefaultRequestTimeout.
+ @brief Timeout interval of the requests. Used when some url is adding to queue.
+ @detailed Default value is 'kREDownloadTasksQueueDefaultRequestTimeout'.
  */
 @property (nonatomic, assign, readwrite) NSTimeInterval timeoutInterval;
 
 
 /**
- @brief Default is 0. Value between 0 and 1, [0, 1].
+ @brief Downloading progress of the queue. Calculates on downloaded data size.
+ @detailed Default is 0. Value between 0 and 1, [0, 1].
  */
 @property (nonatomic, assign, readonly) float downloadProgress;
 
 
 /**
- @brief Default is [NSNull null].
+ @brief User defined object for identifing queue. Posted with notifications.
+ @detailed Default is '[NSNull null]'.
  */
 @property (nonatomic, strong) id userObject;
 
+
+/**
+ @brief Number of tasks in the queue. 
+ @detailed During downloading this value is decrementing, when some task successfully finished.
+ */
 @property (nonatomic, assign, readonly) NSUInteger tasksCount;
 
+
+/**
+ @brief Block handler for reporting queue download progress. Can be NULL.
+ @detailed Arrived on 'main queue'.
+ @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
+ */
 @property (nonatomic, copy) void(^onProgressHandler)(REDownloadTasksQueue * queue, float progress);
 
+
+/**
+ @brief Block handler for reporting queue finished work(all tasks successfully finished).
+ @detailed Arrived on 'main queue'.
+ @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
+ */
 @property (nonatomic, copy) void(^onFinishedHandler)(REDownloadTasksQueue * queue);
 
+
+/**
+ @brief Block handler for reporting queue error. Before this, queue is cancelled.
+ @detailed Arrived on 'main queue'.
+ @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
+ */
 @property (nonatomic, copy) void(^onErrorOccurredHandler)(REDownloadTasksQueue * queue, NSError * error, NSURL * storeFilePathURL);
 
-@property (nonatomic, assign, readwrite) NSUInteger numberOfParallelTasks;
 
+/**
+ @brief Number of the tasks which is resumed.
+ @detailed Default value is 4. Values range is [1, 64].
+ */
+@property (nonatomic, assign, readwrite) NSUInteger numberOfResumedTasks;
+
+
+/**
+ @brief Number of concurrent tasks.
+ @detailed Default value is 2. Values range is [1, 32].
+ */
+@property (nonatomic, assign, readwrite) NSUInteger numberOfMaximumConcurrentTasks;
+
+
+/**
+ @brief Checks is queue is cancelled.
+ @return YES - if all tasks cancelled, othervice NO.
+ */
 - (BOOL) isCanceled;
 
+
+/**
+ @brief Add url for downloading.
+ @param urlString The URL string for download. Can be nil.
+ @param storePath Store path for downloaded data. Can be nil.
+ @return YES - if successfully added, othervice NO.
+ */
 - (BOOL) addURLString:(NSString *) urlString withStorePath:(NSString *) storePath;
 
+
+/**
+ @brief Add url for downloading.
+ @param url The URL for download. Can be nil. Also checked url is not file or file reference.
+ @param storePath Store path for downloaded data. Can be nil.
+ @return YES - if successfully added, othervice NO.
+ */
 - (BOOL) addURL:(NSURL *) url withStorePath:(NSString *) storePath;
 
+
+/**
+ @brief Starts queue.
+ */
 - (void) start;
 
+
+/**
+ @brief Cancel all tasks and waits when all tasks is canceled before triger handler.
+ @param handler Handler triger on all tasks cancelled on 'main queue'. Can be NULL.
+ */
 - (void) cancelWithCompletionHandler:(void(^)(void)) handler;
 
 @end

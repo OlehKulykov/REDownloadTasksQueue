@@ -27,7 +27,7 @@
 @interface REDownloadTasksQueue () <NSURLSessionDownloadDelegate>
 {
 @private
-	NSUInteger _parallelTasksCount;
+	NSUInteger _numberResumed;
 	NSUInteger _active;
 	pthread_mutex_t _mutex;
 	BOOL _isFinished;

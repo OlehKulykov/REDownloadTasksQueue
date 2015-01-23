@@ -22,6 +22,7 @@
 
 
 #import "REDownloadTasksQueueTaskInfo.h"
+#import "REDownloadTasksQueue.h"
 
 static const NSString * const kBytesWrittedKey = @"writed";
 static const NSString * const kBytesExpectedToWriteKey = @"expected";
@@ -170,7 +171,31 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	if (fromURL) 
 	{
 		self.task = nil;
-		return [[NSFileManager defaultManager] moveItemAtURL:fromURL toURL:[self storeURL] error:error];
+		NSString * storePath = self.storePath;
+		
+		BOOL isDir = YES;
+		NSFileManager * manager = [NSFileManager defaultManager];
+		if ([manager fileExistsAtPath:storePath isDirectory:&isDir]) 
+		{
+			if (isDir) 
+			{
+				if (error) 
+				{
+					NSString * text = NSLocalizedString(@"Destination path exists and it's folder.", nil);
+					NSError * e = [[NSError alloc] initWithDomain:@"REDownloadTasksQueue" 
+															 code:-1
+														 userInfo:@{NSLocalizedDescriptionKey: text}];
+					*error = e;
+				}
+				return NO;
+			}
+			else
+			{
+				if (![manager removeItemAtPath:storePath error:error]) return NO;
+			}
+		}
+		
+		return [manager moveItemAtURL:fromURL toURL:[self storeURL] error:error];
 	}
 	return NO;
 }
