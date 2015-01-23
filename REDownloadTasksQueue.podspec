@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.version      = "0.1.0"
   s.summary      = "iOS Objective-C download queue based on NSURLSessionDownloadTask's"
   s.description  = <<-DESC
-iOS Objective-C download queue based on NSURLSessionDownloadTask's
+iOS Objective-C download queue based on NSURLSessionDownloadTask's.
                       DESC
   s.homepage     = "https://github.com/OlehKulykov/REDownloadTasksQueue"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
