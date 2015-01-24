@@ -12,6 +12,15 @@
 - Queue can be serialized/deserialized for future reusing.
 - Required ARC.
 
+
+### Installation with CocoaPods
+#### Podfile
+```ruby
+platform :ios, '7.0'
+pod 'REDownloadTasksQueue', '~> 0.1.1'
+```
+
+
 ### Create and fill queue with URL's
 ```objective-c
 #import "REDownloadTasksQueue.h" // include single queue header file
