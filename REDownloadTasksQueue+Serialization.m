@@ -25,7 +25,7 @@
 #import "REDownloadTasksQueuePrivate.h"
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
-#import "NSMutableNumber.h"
+#import "REMutableNumber.h"
 #import <pthread.h>
 
 @implementation REDownloadTasksQueue (Serialization)

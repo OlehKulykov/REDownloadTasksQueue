@@ -25,7 +25,7 @@
 #import "REDownloadTasksQueuePrivate.h"
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
-#import "NSMutableNumber.h"
+#import "REMutableNumber.h"
 #import <pthread.h>
 
 const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout = 40;
@@ -100,26 +100,9 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 			if (!info.isStarted) 
 			{
 				NSURLSessionDownloadTask * t = [info task];
-//				switch ([t state]) 
-//				{
-//					case NSURLSessionTaskStateCompleted:
-//						break;
-//						
-//					case NSURLSessionTaskStateRunning:
-//						break;
-//						
-//					case NSURLSessionTaskStateSuspended:
-						info.isStarted = YES;
-						[t resume];
-						if (++started >= needStart) break;
-//						break;
-//						
-//					case NSURLSessionTaskStateCanceling:
-//						break;
-//						
-//					default:
-//						break;
-//				}
+				info.isStarted = YES;
+				[t resume];
+				if (++started >= needStart) break;
 			}
 		}
 		isStarted = (started > 0);
@@ -273,7 +256,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	_isCanceled = YES;
 	
 	pthread_mutex_lock(&_mutex);
-	NSMutableNumber * runningCount = [NSMutableNumber numberWithInt:0];
+	REMutableNumber * runningCount = [REMutableNumber numberWithInt:0];
 	NSArray * infosArray = self.infos;
 	if (infosArray) 
 	{

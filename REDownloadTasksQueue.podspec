@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
 # Common settings
   s.name         = "REDownloadTasksQueue"
-  s.version      = "0.1.1"
+  s.version      = "0.1.2"
   s.summary      = "iOS Objective-C download queue based on NSURLSessionDownloadTask's"
   s.description  = <<-DESC
 iOS Objective-C download queue based on NSURLSessionDownloadTask's.
@@ -16,7 +16,7 @@ iOS Objective-C download queue based on NSURLSessionDownloadTask's.
   s.platform     = :ios, "7.0"
 
 # Build  
-  s.public_header_files = 'REDownloadTasksQueue.h', 'REDownloadTasksQueue+Serialization.h'
+  s.public_header_files = 'REDownloadTasksQueue.h', 'REDownloadTasksQueue+Serialization.h', 'REMutableNumber.h'
   s.source_files = '*.{h,m}'
   
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/REDownloadTasksQueue"' }

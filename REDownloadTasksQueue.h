@@ -59,6 +59,8 @@
 #  endif
 #endif
 
+#import "REMutableNumber.h"
+
 
 /**
  @brief Reporting type of the queue.

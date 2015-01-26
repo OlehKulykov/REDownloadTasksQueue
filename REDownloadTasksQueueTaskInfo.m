@@ -118,16 +118,11 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	if (!self.isStarted || self.isCanceled) return NO;
 	self.isCanceled = YES;
 	
-//	if ([_task state] == NSURLSessionTaskStateRunning) 
-//	{
-		[_task cancelByProducingResumeData:^(NSData * resData){
-			self.resumeData = resData;
-			if (handler) handler();
-		}];
-		return YES;
-//	}
-//	
-//	return NO;
+	[_task cancelByProducingResumeData:^(NSData * resData){
+		self.resumeData = resData;
+		if (handler) handler();
+	}];
+	return YES;
 }
 
 - (void) cancel
@@ -135,24 +130,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	if (!self.isStarted || self.isCanceled) return;
 	self.isCanceled = YES;
 	
-//	switch ([_task state]) 
-//	{
-////		case NSURLSessionTaskStateCompleted:
-////			break;
-////			
-//		case NSURLSessionTaskStateRunning:
-			[_task cancel];
-//			break;
-//			
-////		case NSURLSessionTaskStateSuspended:
-////			break;
-////			
-////		case NSURLSessionTaskStateCanceling:
-////			break;
-//			
-//		default: 
-//			break;
-//	}
+	[_task cancel];
 }
 
 - (NSURL *) storeURL
