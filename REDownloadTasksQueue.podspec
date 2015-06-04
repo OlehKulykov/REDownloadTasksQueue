@@ -17,7 +17,7 @@ iOS Objective-C download queue based on NSURLSessionDownloadTask's.
                       DESC
   s.homepage     = "https://github.com/OlehKulykov/REDownloadTasksQueue"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
-  s.author       = { "Oleh Kulykov" => "info@resident.name" }
+  s.author       = { "Oleh Kulykov" => "<info@resident.name>" }
   s.source       = { :git => 'https://github.com/OlehKulykov/REDownloadTasksQueue.git', :tag => s.version.to_s }
 
 # Platforms
