@@ -1,3 +1,5 @@
+[![CocoaPods](https://img.shields.io/cocoapods/p/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/?q=REDownloadTasksQueue)
+[![CocoaPods](https://img.shields.io/cocoapods/v/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/?q=REDownloadTasksQueue)
 [![Total views](https://sourcegraph.com/api/repos/github.com/OlehKulykov/REDownloadTasksQueue/counters/views.png)](https://sourcegraph.com/github.com/OlehKulykov/REDownloadTasksQueue)
 [![Views in the last 24 hours](https://sourcegraph.com/api/repos/github.com/OlehKulykov/REDownloadTasksQueue/counters/views-24h.png)](https://sourcegraph.com/github.com/OlehKulykov/REDownloadTasksQueue)
 
@@ -17,7 +19,7 @@
 #### Podfile
 ```ruby
 platform :ios, '7.0'
-pod 'REDownloadTasksQueue', '~> 0.1.2'
+pod 'REDownloadTasksQueue', '~> 0.1'
 ```
 
 
@@ -36,6 +38,23 @@ for (...) // iterate URL's
 [_queue start]; // start queue
 ```
 
+### Setup queue with Internet connection quality
+If you are using reachability functionality you can customize queue performance something like:
+```objective-c
+// check here reachability status
+if (reachabilityStatus == AFNetworkReachabilityStatusReachableViaWiFi)
+{
+	// wi-fi connection, number of tasks can be increased
+	self.queue.numberOfResumedTasks = 6;
+	self.queue.numberOfMaximumConcurrentTasks = 3;
+}
+else
+{
+	// other connection
+	self.queue.numberOfResumedTasks = 4;
+	self.queue.numberOfMaximumConcurrentTasks = 2;
+}
+```
 
 ### Track queue events via blocks 
 ```objective-c
