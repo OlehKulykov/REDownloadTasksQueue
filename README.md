@@ -38,7 +38,7 @@ for (...) // iterate URL's
 [_queue start]; // start queue
 ```
 
-### Setup queue with Internet connection quality
+### Optionally setup queue with Internet connection quality
 If you are using reachability functionality you can customize queue performance something like:
 ```objective-c
 // check here reachability status
