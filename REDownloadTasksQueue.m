@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2014 - 2015 Kulykov Oleh <info@resident.name>
+ *   Copyright (c) 2014 - 2015 Kulykov Oleh <nonamedemail@gmail.com>
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
  *   of this software and associated documentation files (the "Software"), to deal
@@ -118,12 +118,14 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	
 	const float progress = [self downloadProgress];
 	
-	NSDictionary * info = nil;
+	NSMutableDictionary * info = nil;
 	if (_reportType & REDownloadTasksQueueReportViaNotifications)
 	{
-		info = @{ kREDownloadTasksQueueQueueKey : self,
-				  kREDownloadTasksQueueUserObjectKey : _userObject ? _userObject : [NSNull null],
-				  kREDownloadTasksQueueProgressKey : [NSNumber numberWithFloat:progress] };
+		info = [NSMutableDictionary dictionaryWithCapacity:3];
+		[info setObject:self forKey:kREDownloadTasksQueueQueueKey];
+		[info setObject:_userObject ? _userObject : [NSNull null]
+				 forKey:kREDownloadTasksQueueUserObjectKey];
+		[info setObject:[NSNumber numberWithFloat:progress] forKey:kREDownloadTasksQueueProgressKey];
 	}
 	
 	id<REDownloadTasksQueueDelegate> d = self.delegate;
@@ -143,11 +145,13 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	if (_isFinished || _reportType == REDownloadTasksQueueReportNone) return;
 	_isFinished = YES;
 	
-	NSDictionary * info = nil;
+	NSMutableDictionary * info = nil;
 	if (_reportType & REDownloadTasksQueueReportViaNotifications)
 	{
-		info = @{ kREDownloadTasksQueueQueueKey : self,
-				  kREDownloadTasksQueueUserObjectKey : _userObject ? _userObject : [NSNull null] };
+		info = [NSMutableDictionary dictionaryWithCapacity:2];
+		[info setObject:self forKey:kREDownloadTasksQueueQueueKey];
+		[info setObject:_userObject ? _userObject : [NSNull null]
+				 forKey:kREDownloadTasksQueueUserObjectKey];
 	}
 	
 	id<REDownloadTasksQueueDelegate> d = self.delegate;
@@ -170,14 +174,16 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	
 	NSURL * toURL = [info storeURL];
 	NSURL * fromURL = [info originalURL];
-	NSDictionary * userInfo = nil;
+	NSMutableDictionary * userInfo = nil;
 	if (_reportType & REDownloadTasksQueueReportViaNotifications)
 	{
-		userInfo = @{ kREDownloadTasksQueueQueueKey : self,
-					  kREDownloadTasksQueueUserObjectKey : _userObject ? _userObject : [NSNull null],
-					  kREDownloadTasksQueueErrorKey : error,
-					  kREDownloadTasksQueueDownloadURLKey: fromURL,
-					  kREDownloadTasksQueueStoreURLKey : toURL };
+		userInfo = [NSMutableDictionary dictionaryWithCapacity:5];
+		[userInfo setObject:self forKey:kREDownloadTasksQueueQueueKey];
+		[userInfo setObject:_userObject ? _userObject : [NSNull null]
+					 forKey:kREDownloadTasksQueueUserObjectKey];
+		if (error) [userInfo setObject:error forKey:kREDownloadTasksQueueErrorKey];
+		if (fromURL) [userInfo setObject:fromURL forKey:kREDownloadTasksQueueDownloadURLKey];
+		if (toURL) [userInfo setObject:toURL forKey:kREDownloadTasksQueueStoreURLKey];
 	}
 	
 	id<REDownloadTasksQueueDelegate> d = self.delegate;
