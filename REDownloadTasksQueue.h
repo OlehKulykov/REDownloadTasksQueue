@@ -112,6 +112,18 @@ RE_EXTERN NSString * const kREDownloadTasksQueueProgressChangedNotification;
 
 
 /**
+ @brief Arrived when download progress changed.
+ User info dictionary is: @{@"queue" : REDownloadTasksQueue, @"userObject" : UserObject, @"progress" : NSNumberValue}.
+ @warning Key = kREDownloadTasksQueueQueueKey; Value = REDownloadTasksQueue object.
+ @warning Key = kREDownloadTasksQueueUserObjectKey;  Value = user object or [NSNull null]
+ @warning Key = kREDownloadTasksQueueDownloadURLKey; Value = 'NSURL' object.
+ @warning Key = kREDownloadTasksQueueStoreURLKey; Value = 'NSURL' object.
+ @warning Key = kREDownloadTasksQueueProgressKey;  Value = 'NSNumber' object.
+ */
+RE_EXTERN NSString * const kREDownloadTasksQueueDidDownloadURLProgressChangedNotification;
+
+
+/**
  @brief Arrived on error.
  User info dictionary is: @{@"queue" : REDownloadTasksQueue, @"userObject" : UserObject, @"error" : NSError object, @"downloadURL" : NSURL object, @"storeURL" : NSURL object}. 
  @warning Key = kREDownloadTasksQueueQueueKey; Value = DownloadTasksQueue object.
@@ -201,6 +213,19 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 
 /**
+ @brief Called when downloaded single url and stored to destination path
+ @param queue The download queue object.
+ @param downloadURL Downloaded URL.
+ @param storeURL URL for storing downloaded data.
+ @param progress Downloading progress in range from 0 to 1, [0, 1].
+ */
+- (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue
+				 didDownloadURL:(NSURL *) downloadURL
+				 andStoredToURL:(NSURL *) storeURL
+				   withProgress:(float) progress;
+
+
+/**
  @brief Called when error oqupaed.
  @param queue The download queue object.
  @param error The error object.
@@ -278,6 +303,16 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 
 /**
+ @brief Block handler for reporting queue download progress. Can be NULL.
+ @detailed Arrived on 'main queue'.
+ @param downloadURL Downloaded URL.
+ @param storeURL URL for storing downloaded data.
+ @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
+ */
+@property (nonatomic, copy) void(^onDidDownloadURLProgressHandler)(REDownloadTasksQueue * queue, NSURL * downloadURL, NSURL * storeURL, float progress);
+
+
+/**
  @brief Block handler for reporting queue finished work(all tasks successfully finished).
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
@@ -334,12 +369,15 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 /**
  @brief Starts queue.
+ @warning Don't forget call cancelWithCompletionHandler: method if queue not correctly finished.
  */
 - (void) start;
 
 
 /**
- @brief Cancel all tasks and waits when all tasks is canceled before triger handler.
+ @brief Cancel all tasks and waits untill all tasks is canceled before triger handler.
+ @warning You shoul always call this method if you want to release queue, cause internal session object
+ holds strongly this queue.
  @param handler Handler triger on all tasks cancelled on 'main queue'. Can be NULL.
  */
 - (void) cancelWithCompletionHandler:(void(^)(void)) handler;
