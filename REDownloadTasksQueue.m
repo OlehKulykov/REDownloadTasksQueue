@@ -302,13 +302,11 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 		int count = 0;
 		for (REDownloadTasksQueueTaskInfo * info in infosArray) 
 		{
-			__weak REDownloadTasksQueue * weakSelf = self;
 			const BOOL isCanceledRunning = [info cancelRunningWithCompletionHandler:^{
-				REDownloadTasksQueue * queue = weakSelf;
-				[queue lock];
+				[self lock];
 				const int count = [runningCount intValue] - 1;
 				[runningCount setIntValue:count];
-				[queue unlock];
+				[self unlock];
 				if (count <= 0) 
 				{
 					[runningCount setIntValue:INT_MAX];
@@ -330,15 +328,9 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 
 	if (_session)
 	{
-		__weak REDownloadTasksQueue * weakSelf = self;
 		[_session resetWithCompletionHandler:^{
-			REDownloadTasksQueue * queue = weakSelf;
-			NSURLSession * session = nil;
-			if (queue)
-			{
-				session = queue.session;
-				queue.session = nil;
-			}
+			NSURLSession * session = self.session;
+			self.session = nil;
 			if (session) [session invalidateAndCancel];
 		}];
 	}
