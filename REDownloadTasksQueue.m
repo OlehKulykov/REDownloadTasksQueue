@@ -233,8 +233,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 
 - (BOOL) addURL:(NSURL *) url withStorePath:(NSString *) storePath
 {
-	if (!url) return NO;
-	if ([url isFileURL] || [url isFileReferenceURL]) return NO;
+	if (!url || [url isFileURL] || [url isFileReferenceURL]) return NO;
 	if (!storePath || [storePath length] == 0) return NO;
 	
 	NSMutableURLRequest * request = [[NSMutableURLRequest alloc] initWithURL:url 
@@ -249,21 +248,17 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	return (urlString && [urlString length] > 0) ? [self addURL:[NSURL URLWithString:urlString] withStorePath:storePath] : NO;
 }
 
-- (BOOL)addURLRequest:(NSURLRequest *)urlRequest withStorePath:(NSString *)storePath
+- (BOOL) addURLRequest:(NSURLRequest *) urlRequest withStorePath:(NSString *) storePath
 {
-    if (!urlRequest) return NO;
-    if (!urlRequest.URL) return NO;
-    if ([urlRequest.URL isFileURL] || [urlRequest.URL isFileReferenceURL]) return NO;
+	NSURL * url = urlRequest ? [urlRequest URL] : nil;
+    if (!url || [url isFileURL] || [url isFileReferenceURL]) return NO;
     if (!storePath || [storePath length] == 0) return NO;
     
     REDownloadTasksQueueTaskInfo * info = [REDownloadTasksQueueTaskInfo infoWithTask:[_session downloadTaskWithRequest:urlRequest completionHandler:NULL]];
     if (info)
     {
-        info.storePath = storePath;
-    }
-    
-    if (info)
-    {
+		info.storePath = storePath;
+
         pthread_mutex_lock(&_mutex);
         if (_infos) [_infos addObject:info];
         else self.infos = [NSMutableArray arrayWithObject:info];

@@ -368,12 +368,13 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 
 /**
- @brief Add url for downloading.
- @param url The URL for download. Can be nil. Also checked url is not file or file reference.
+ @brief Add url request for downloading.
+ @param urlRequest Manually setuped URL request. Can be nil. Also checked request url is not file or file reference.
  @param storePath Store path for downloaded data. Can be nil.
  @return YES - if successfully added, othervice NO.
  */
 - (BOOL) addURLRequest:(NSURLRequest *) urlRequest withStorePath:(NSString *) storePath;
+
 
 /**
  @brief Starts queue.
