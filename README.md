@@ -1,8 +1,8 @@
 ## iOS Objective-C download queue based on NSURLSessionDownloadTask's. 
 
 
-[![CocoaPods](https://img.shields.io/cocoapods/p/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/pods/REDownloadTasksQueue)
-[![CocoaPods](https://img.shields.io/cocoapods/v/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/pods/REDownloadTasksQueue)
+[![CocoaPods](https://img.shields.io/cocoapods/p/REDownloadTasksQueue.svg?style=flat)](https://cocoapods.org/pods/REDownloadTasksQueue)
+[![CocoaPods](https://img.shields.io/cocoapods/v/REDownloadTasksQueue.svg?style=flat)](https://cocoapods.org/pods/REDownloadTasksQueue)
 
 
 ### Main features:
