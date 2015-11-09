@@ -25,7 +25,6 @@
 #import "REDownloadTasksQueuePrivate.h"
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
-#import "REMutableNumber.h"
 #import <pthread.h>
 
 const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout = 40;
@@ -298,7 +297,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	_isCanceled = YES;
 	
 	pthread_mutex_lock(&_mutex);
-	REMutableNumber * runningCount = [REMutableNumber numberWithInt:0];
+	NSMutableNumber * runningCount = [NSMutableNumber numberWithInt:0];
 	NSArray * infosArray = self.infos;
 	if (infosArray) 
 	{

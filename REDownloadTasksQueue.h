@@ -59,7 +59,7 @@
 #  endif
 #endif
 
-#import "REMutableNumber.h"
+#import <NSMutableNumber/NSMutableNumber.h>
 
 
 /**
