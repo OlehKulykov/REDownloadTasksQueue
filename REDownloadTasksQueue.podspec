@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
 # Common settings
   s.name         = "REDownloadTasksQueue"
-  s.version      = "0.1.7"
+  s.version      = "0.1.8"
   s.summary      = "iOS Objective-C download queue based on NSURLSessionDownloadTask's"
   s.description  = <<-DESC
 iOS Objective-C download queue based on NSURLSessionDownloadTask's.
@@ -22,7 +22,10 @@ iOS Objective-C download queue based on NSURLSessionDownloadTask's.
   s.dependency 'NSMutableNumber'
 
 # Platforms
-  s.platform     = :ios, "7.0"
+  s.ios.deployment_target = "7.0"
+  s.osx.deployment_target = "10.7"
+  s.watchos.deployment_target = '2.0'
+  s.tvos.deployment_target = '9.0'
 
 # Build  
   s.public_header_files = 'REDownloadTasksQueue.h', 'REDownloadTasksQueue+Serialization.h'
