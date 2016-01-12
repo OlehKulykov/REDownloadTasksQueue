@@ -23,6 +23,8 @@
 
 #import "REDownloadTasksQueueTaskInfo.h"
 #import "REDownloadTasksQueue.h"
+#import <Inlineobjc/NSString+Inlineobjc.h>
+#import <Inlineobjc/NSArray+Inlineobjc.h>
 
 static const NSString * const kBytesWrittedKey = @"writed";
 static const NSString * const kBytesExpectedToWriteKey = @"expected";
@@ -39,7 +41,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	if (dict) 
 	{
 		NSString * urlString = [dict objectForKey:kURLKey];
-		if (urlString && [urlString length] > 0) 
+		if (NSStringIsNotEmpty(urlString))
 		{
 			NSNumber * number = [dict objectForKey:kRequestTimeOutKey];
 			const NSTimeInterval timeout = number ? (NSTimeInterval)[number doubleValue] : kREDownloadTasksQueueDefaultRequestTimeout;

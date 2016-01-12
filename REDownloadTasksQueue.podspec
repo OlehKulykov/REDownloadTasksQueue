@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
 # Common settings
   s.name         = "REDownloadTasksQueue"
-  s.version      = "0.1.8"
+  s.version      = "0.1.9"
   s.summary      = "iOS Objective-C download queue based on NSURLSessionDownloadTask's"
   s.description  = <<-DESC
 iOS Objective-C download queue based on NSURLSessionDownloadTask's.
@@ -20,6 +20,7 @@ iOS Objective-C download queue based on NSURLSessionDownloadTask's.
   s.author       = { "Oleh Kulykov" => "<info@resident.name>" }
   s.source       = { :git => 'https://github.com/OlehKulykov/REDownloadTasksQueue.git', :tag => s.version.to_s }
   s.dependency 'NSMutableNumber'
+  s.dependency 'Inlineobjc'
 
 # Platforms
   s.ios.deployment_target = "7.0"

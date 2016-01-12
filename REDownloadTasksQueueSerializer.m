@@ -25,6 +25,8 @@
 #import "REDownloadTasksQueueTaskInfo.h"
 #import "REDownloadTasksQueuePrivate.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <Inlineobjc/NSString+Inlineobjc.h>
+#import <Inlineobjc/NSArray+Inlineobjc.h>
 
 @interface REDownloadTasksQueueSerializer()
 
@@ -41,10 +43,10 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 - (BOOL) finishSerialization
 {
-	if (_storeArray && [_storeArray count] > 0) 
+	if (NSArrayIsNotEmpty(_storeArray))
 	{
 		NSString * folder = [REDownloadTasksQueueSerializer storeFolder];
-		if (folder) 
+		if (NSStringIsNotEmpty(folder))
 		{
 			if (![[NSFileManager defaultManager] fileExistsAtPath:folder])
 			{
@@ -60,7 +62,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 			
 			NSData * data = [REDownloadTasksQueueSerializer dataWithDictionary:dict];			
 			NSString * storePath = [folder stringByAppendingPathComponent:_restorationID];
-			return (storePath && data) ? [data writeToFile:storePath atomically:YES] : NO;
+			return (NSStringIsNotEmpty(storePath) && data) ? [data writeToFile:storePath atomically:YES] : NO;
 		}
 	}
 	return NO;
@@ -68,7 +70,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 - (BOOL) prepareSerialize:(NSArray *) infosArray
 {
-	const NSUInteger count = infosArray ? [infosArray count] : 0;
+	const NSUInteger count = NSArrayCount(infosArray);
 	if (count) 
 	{
 		NSMutableArray * array = [NSMutableArray arrayWithCapacity:count];
@@ -85,7 +87,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 + (void) removeRestorationData:(NSString *) restorationID
 {
-	NSString * path = restorationID ? [[REDownloadTasksQueueSerializer storeFolder] stringByAppendingPathComponent:restorationID] : nil;
+	NSString * path = (NSStringIsNotEmpty(restorationID)) ? [[REDownloadTasksQueueSerializer storeFolder] stringByAppendingPathComponent:restorationID] : nil;
 	if (path) 
 	{
 		[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
@@ -95,7 +97,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 + (NSArray *) allRestorationIDs
 {
 	NSString * path = [REDownloadTasksQueueSerializer storeFolder];
-	if (path) 
+	if (NSStringIsNotEmpty(path))
 	{
 		BOOL isDir = NO;
 		if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) 
@@ -105,12 +107,12 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 				NSError * error = nil;
 				NSArray * contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
 				NSMutableArray * ids = nil;
-				if (contents && [contents count] > 0) 
+				if (NSArrayIsNotEmpty(contents))
 				{
 					for (NSString * p in contents) 
 					{
 						NSString * last = [p lastPathComponent];
-						if (last) 
+						if (NSStringIsNotEmpty(last))
 						{
 							if (ids) [ids addObject:last];
 							else ids = [NSMutableArray arrayWithObject:last];
@@ -126,9 +128,9 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 - (NSMutableArray *) deserializeTasksForSession:(NSURLSession *) session
 {
-	if (!_folderPath || !_restorationID || !session) return nil;
+	if (NSStringIsEmpty(_folderPath) || NSStringIsEmpty(_restorationID) || !session) return nil;
 	NSString * path = [_folderPath stringByAppendingPathComponent:_restorationID];
-	if (!path) return nil;
+	if (NSStringIsEmpty(path)) return nil;
 	
 	NSError * error = nil;
 	NSData * data = [NSData dataWithContentsOfFile:path options:NSDataReadingUncached error:&error];
@@ -147,7 +149,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	else return nil;
 	
 	NSArray * infosArray = [dict objectForKey:kDownloadTasksQueueInfosArrayKey];
-	const NSUInteger count = infosArray ? [infosArray count] : 0;
+	const NSUInteger count = NSArrayCount(infosArray);
 	if (count == 0) return nil;
 	
 	NSMutableArray * infos = [NSMutableArray arrayWithCapacity:count];
@@ -157,7 +159,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 		if (info) [infos addObject:info];
 	}
 	
-	return (infos && [infos count] > 0) ? infos : nil;
+	return (NSArrayIsNotEmpty(infos)) ? infos : nil;
 }
 
 - (id) initWithRestorationID:(NSString *) restorationID
@@ -166,11 +168,11 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	if (self) 
 	{
 		NSString * path = [REDownloadTasksQueueSerializer storeFolder];
-		if (!path) return nil;
+		if (NSStringIsEmpty(path)) return nil;
 		
 		NSString * testPath = [path stringByAppendingPathComponent:restorationID];
 		BOOL isDir = YES;		
-		if (testPath && [[NSFileManager defaultManager] fileExistsAtPath:testPath isDirectory:&isDir]) 
+		if (NSStringIsNotEmpty(testPath) && [[NSFileManager defaultManager] fileExistsAtPath:testPath isDirectory:&isDir])
 		{
 			if (!isDir) 
 			{
@@ -179,7 +181,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 			}
 		}
 	}
-	return (_restorationID && _folderPath) ? self : nil;
+	return (NSStringIsNotEmpty(_restorationID) && NSStringIsNotEmpty(_folderPath)) ? self : nil;
 }
 
 - (id) init
@@ -188,15 +190,15 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	if (self) 
 	{
 		NSString * path = [REDownloadTasksQueueSerializer storeFolder];
-		if (!path) return nil;
+		if (NSStringIsEmpty(path)) return nil;
 		
-		while (!_restorationID) 
+		while (NSStringIsEmpty(_restorationID))
 		{
 			NSString * idString = [REDownloadTasksQueueSerializer generateRestorationID];
-			if (idString) 
+			if (NSStringIsNotEmpty(idString))
 			{
 				NSString * testPath = [path stringByAppendingPathComponent:idString];
-				if (testPath && ![[NSFileManager defaultManager] fileExistsAtPath:testPath]) 
+				if (NSStringIsNotEmpty(testPath) && ![[NSFileManager defaultManager] fileExistsAtPath:testPath])
 				{
 					self.restorationID = idString;
 					self.folderPath = path;
@@ -215,9 +217,9 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 + (NSString *) storeFolder
 {
 	NSArray * list = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	if (!list) return nil;
+	if (NSArrayIsEmpty(list)) return nil;
 	NSString * path = [list lastObject];
-	return path ? [path stringByAppendingPathComponent:@"REDownloadTasksQueueSerializer"] : nil;
+	return (NSStringIsNotEmpty(path)) ? [path stringByAppendingPathComponent:@"REDownloadTasksQueueSerializer"] : nil;
 }
 
 + (NSString *) generateRestorationID

@@ -26,6 +26,8 @@
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
 #import <NSMutableNumber/NSMutableNumber.h>
+#import <Inlineobjc/NSString+Inlineobjc.h>
+#import <Inlineobjc/NSArray+Inlineobjc.h>
 #import <pthread.h>
 
 @implementation REDownloadTasksQueue (Serialization)
@@ -34,7 +36,7 @@
 			andCompletionHandler:(void(^)(REDownloadTasksQueue * queue, NSError * error)) handler
 {
 	if (!handler) return;
-	if (!restorationID) handler(nil, nil);
+	if (NSStringIsEmpty(restorationID)) handler(nil, nil);
 	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 		REDownloadTasksQueue * q = [[REDownloadTasksQueue alloc] init];
@@ -44,7 +46,7 @@
 		if (!serializer) dispatch_async(dispatch_get_main_queue(), ^{ handler(nil, nil); });
 		
 		NSMutableArray * infos = [serializer deserializeTasksForSession:q.session];
-		if (infos)
+		if (NSArrayIsNotEmpty(infos))
 		{
 			q.infos = infos;
 			q.total = serializer.total;

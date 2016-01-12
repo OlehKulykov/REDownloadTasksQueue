@@ -25,6 +25,8 @@
 #import "REDownloadTasksQueuePrivate.h"
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
+#import <Inlineobjc/NSString+Inlineobjc.h>
+#import <Inlineobjc/NSArray+Inlineobjc.h>
 #import <pthread.h>
 
 const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout = 40;
@@ -91,7 +93,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	
 	pthread_mutex_lock(&_mutex);
 	NSArray * infosArray = self.infos;
-	if (infosArray && (_active < _numberResumed)) 
+	if (NSArrayIsNotEmpty(infosArray) && (_active < _numberResumed))
 	{		
 		const NSUInteger needStart = _numberResumed - _active;
 		NSUInteger started = 0;
@@ -244,14 +246,14 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 - (BOOL) addURLString:(NSString *) urlString
 		withStorePath:(NSString *) storePath
 {
-	return (urlString && [urlString length] > 0) ? [self addURL:[NSURL URLWithString:urlString] withStorePath:storePath] : NO;
+	return (NSStringIsNotEmpty(urlString)) ? [self addURL:[NSURL URLWithString:urlString] withStorePath:storePath] : NO;
 }
 
 - (BOOL) addURLRequest:(NSURLRequest *) urlRequest withStorePath:(NSString *) storePath
 {
 	NSURL * url = urlRequest ? [urlRequest URL] : nil;
     if (!url || [url isFileURL] || [url isFileReferenceURL]) return NO;
-    if (!storePath || [storePath length] == 0) return NO;
+    if (NSStringIsEmpty(storePath)) return NO;
     
     REDownloadTasksQueueTaskInfo * info = [REDownloadTasksQueueTaskInfo infoWithTask:[_session downloadTaskWithRequest:urlRequest completionHandler:NULL]];
     if (info)
@@ -272,7 +274,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 
 - (REDownloadTasksQueueTaskInfo *) infoForTask:(NSURLSessionDownloadTask *) task
 {
-	if (task && _infos && [_infos count] > 0) 
+	if (task && NSArrayIsNotEmpty(_infos))
 	{
 		const NSUInteger tID = [task taskIdentifier];
 		for (REDownloadTasksQueueTaskInfo * info in _infos) 
@@ -299,7 +301,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	pthread_mutex_lock(&_mutex);
 	NSMutableNumber * runningCount = [NSMutableNumber numberWithInt:0];
 	NSArray * infosArray = self.infos;
-	if (infosArray) 
+	if (NSArrayIsNotEmpty(infosArray))
 	{
 		int count = 0;
 		for (REDownloadTasksQueueTaskInfo * info in infosArray) 
@@ -455,7 +457,7 @@ didFinishDownloadingToURL:(NSURL *) location
 			[_infos removeObject:info];
 			
 			BOOL isFinished = NO;
-			if (!_infos || [_infos count] == 0) 
+			if (NSArrayIsEmpty(_infos))
 			{
 				_done = _total;
 				isFinished = YES;
