@@ -137,7 +137,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 
 - (NSURL *) storeURL
 {
-	return _storePath ? [NSURL fileURLWithPath:_storePath isDirectory:NO] : nil;
+	return (NSStringIsNotEmpty(_storePath)) ? [NSURL fileURLWithPath:_storePath isDirectory:NO] : nil;
 }
 
 - (NSURL *) originalURL

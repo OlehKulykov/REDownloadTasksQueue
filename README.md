@@ -19,7 +19,7 @@
 #### Podfile
 ```ruby
 platform :ios, '7.0'
-pod 'REDownloadTasksQueue', '~> 0.1.2'
+pod 'REDownloadTasksQueue'
 ```
 
 

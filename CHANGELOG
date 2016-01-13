@@ -1,0 +1,17 @@
+Changes on version 1.0.0 (current):
+- Stable release.
+
+Changes on version 0.1.9:
+- Safe check input parameters.
+
+Changes on version 0.1.6:
+- Append queue with user provided request.
+
+Changes on version 0.1.4:
+-  Correct cancel queue.
+
+Changes on version 0.1.2:
+- Remove unused classes.
+
+Changes on version 0.1.0:
+- Initial functionality.
