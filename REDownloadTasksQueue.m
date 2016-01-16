@@ -25,8 +25,6 @@
 #import "REDownloadTasksQueuePrivate.h"
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
-#import <Inlineobjc/NSString+Inlineobjc.h>
-#import <Inlineobjc/NSArray+Inlineobjc.h>
 #import <pthread.h>
 
 const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout = 40;
