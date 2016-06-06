@@ -26,6 +26,9 @@
 #import "REDownloadTasksQueueSerializer.h"
 #import "REDownloadTasksQueueTaskInfo.h"
 #import <pthread.h>
+#import <NSMutableNumber/NSMutableNumber.h>
+#import <Inlineobjc/NSString+Inlineobjc.h>
+#import <Inlineobjc/NSArray+Inlineobjc.h>
 
 const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout = 40;
 const NSURLRequestCachePolicy kREDownloadTasksQueueDefaultRequestCachePolicy = NSURLRequestReloadIgnoringCacheData;

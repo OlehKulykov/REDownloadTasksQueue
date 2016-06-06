@@ -59,9 +59,6 @@
 #  endif
 #endif
 
-#import <NSMutableNumber/NSMutableNumber.h>
-#import <Inlineobjc/NSString+Inlineobjc.h>
-#import <Inlineobjc/NSArray+Inlineobjc.h>
 
 /**
  @brief Reporting type of the queue.
