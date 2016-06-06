@@ -156,7 +156,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 {
 	if (fromURL) 
 	{
-		self.task = nil;
+//		self.task = nil;
 		NSString * storePath = self.storePath;
 		
 		BOOL isDir = YES;
