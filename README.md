@@ -4,6 +4,7 @@
 [![Platform](https://img.shields.io/cocoapods/p/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/pods/REDownloadTasksQueue)
 [![Version](https://img.shields.io/cocoapods/v/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/pods/REDownloadTasksQueue)
 [![License](https://img.shields.io/cocoapods/l/REDownloadTasksQueue.svg?style=flat)](http://cocoapods.org/pods/REDownloadTasksQueue)
+[![OnlineDocumentation Status](https://img.shields.io/badge/online%20documentation-generated-brightgreen.svg)](http://cocoadocs.org/docsets/REDownloadTasksQueue)
 
 
 ### Main features:
