@@ -33,8 +33,7 @@
 @implementation REDownloadTasksQueue (Serialization)
 
 + (void) createWithRestorationID:(NSString *) restorationID
-			andCompletionHandler:(void(^)(REDownloadTasksQueue * queue, NSError * error)) handler
-{
+			andCompletionHandler:(void(^)(REDownloadTasksQueue * queue, NSError * error)) handler {
 	if (!handler) return;
 	if (NSStringIsEmpty(restorationID)) handler(nil, nil);
 	
@@ -46,8 +45,7 @@
 		if (!serializer) dispatch_async(dispatch_get_main_queue(), ^{ handler(nil, nil); });
 		
 		NSMutableArray * infos = [serializer deserializeTasksForSession:q.session];
-		if (NSArrayIsNotEmpty(infos))
-		{
+		if (NSArrayIsNotEmpty(infos)) {
 			q.infos = infos;
 			q.total = serializer.total;
 			q.done = serializer.done;
@@ -60,13 +58,11 @@
 	});
 }
 
-- (void) serializeWithRestorationID:(void(^)(NSString * restorationID)) handler
-{
+- (void) serializeWithRestorationID:(void(^)(NSString * restorationID)) handler {
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
 		REDownloadTasksQueueSerializer * serializer = [[REDownloadTasksQueueSerializer alloc] init];
 		[self lock];
-		if (serializer) 
-		{
+		if (serializer) {
 			serializer.total = self.total;
 			serializer.done = self.done;
 			if (![serializer prepareSerialize:self.infos]) serializer = nil;
@@ -82,8 +78,7 @@
 	});
 }
 
-- (void) cancelAndSerializeWithRestorationID:(void(^)(NSString * restorationID)) handler
-{
+- (void) cancelAndSerializeWithRestorationID:(void(^)(NSString * restorationID)) handler {
 	if (!handler) return;
 	
 	[self cancelWithCompletionHandler:^{
@@ -91,13 +86,11 @@
 	}];
 }
 
-+ (NSArray *) allRestorationIDs
-{
++ (NSArray *) allRestorationIDs {
 	return [REDownloadTasksQueueSerializer allRestorationIDs];
 }
 
-+ (void) removeRestorationIdentifier:(NSString *) restorationID
-{
++ (void) removeRestorationIdentifier:(NSString *) restorationID {
 	[REDownloadTasksQueueSerializer removeRestorationData:restorationID];
 }
 

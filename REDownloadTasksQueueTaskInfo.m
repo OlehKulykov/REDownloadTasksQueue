@@ -36,13 +36,10 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 
 @implementation REDownloadTasksQueueTaskInfo
 
-+ (NSMutableURLRequest *) requestWithDictionary:(NSDictionary *) dict
-{
-	if (dict) 
-	{
++ (NSMutableURLRequest *) requestWithDictionary:(NSDictionary *) dict {
+	if (dict) {
 		NSString * urlString = [dict objectForKey:kURLKey];
-		if (NSStringIsNotEmpty(urlString))
-		{
+		if (NSStringIsNotEmpty(urlString)) {
 			NSNumber * number = [dict objectForKey:kRequestTimeOutKey];
 			const NSTimeInterval timeout = number ? (NSTimeInterval)[number doubleValue] : kREDownloadTasksQueueDefaultRequestTimeout;
 			
@@ -59,26 +56,19 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 }
 
 + (REDownloadTasksQueueTaskInfo *) infoWithDictionary:(NSDictionary *) dict
-										 forSession:(NSURLSession *) session
-{
-	if (dict && session) 
-	{
+										 forSession:(NSURLSession *) session {
+	if (dict && session) {
 		REDownloadTasksQueueTaskInfo * info = nil;
 		NSData * resumeData = [dict objectForKey:kResumeDataKey];
-		if (resumeData) 
-		{
+		if (resumeData) {
 			info = [REDownloadTasksQueueTaskInfo infoWithTask:[session downloadTaskWithResumeData:resumeData completionHandler:NULL]];
-		}
-		else
-		{
+		} else {
 			NSMutableURLRequest * request = [REDownloadTasksQueueTaskInfo requestWithDictionary:dict];
-			if (request) 
-			{
+			if (request) {
 				info = [REDownloadTasksQueueTaskInfo infoWithTask:[session downloadTaskWithRequest:request completionHandler:NULL]];
 			}
 		}
-		if (info) 
-		{
+		if (info) {
 			info.storePath = [dict objectForKey:kStorePathKey];
 			id value = [dict objectForKey:kBytesWrittedKey];
 			if (value) info.bytesWritted = (int64_t)[(NSNumber *)value longLongValue];
@@ -91,8 +81,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	return nil;
 }
 
-+ (NSMutableDictionary *) serializeInfoToDictionary:(REDownloadTasksQueueTaskInfo *) info
-{
++ (NSMutableDictionary *) serializeInfoToDictionary:(REDownloadTasksQueueTaskInfo *) info {
 	if (!info) return nil;
 	
 	NSMutableDictionary * dict = [NSMutableDictionary dictionaryWithCapacity:7];
@@ -100,13 +89,11 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	[dict setObject:[NSNumber numberWithLongLong:info.bytesExpectedToWrite] forKey:kBytesExpectedToWriteKey];
 	[dict setObject:info.storePath forKey:kStorePathKey];
 	NSData * data = info.resumeData;
-	if (data)
-	{
+	if (data) {
 		[dict setObject:data forKey:kResumeDataKey];
 	}
 	NSURLRequest * request = [info.task originalRequest];
-	if (request) 
-	{
+	if (request) {
 		id value = [[request URL] absoluteString];
 		if (value) [dict setObject:value forKey:kURLKey];
 		[dict setObject:[NSNumber numberWithDouble:(double)[request timeoutInterval]] forKey:kRequestTimeOutKey];
@@ -115,8 +102,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	return dict;
 }
 
-- (BOOL) cancelRunningWithCompletionHandler:(void(^)(void)) handler
-{
+- (BOOL) cancelRunningWithCompletionHandler:(void(^)(void)) handler {
 	if (!self.isStarted || self.isCanceled) return NO;
 	self.isCanceled = YES;
 	
@@ -127,46 +113,36 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	return YES;
 }
 
-- (void) cancel
-{
+- (void) cancel {
 	if (!self.isStarted || self.isCanceled) return;
 	self.isCanceled = YES;
 	
 	[_task cancel];
 }
 
-- (NSURL *) storeURL
-{
+- (NSURL *) storeURL {
 	return (NSStringIsNotEmpty(_storePath)) ? [NSURL fileURLWithPath:_storePath isDirectory:NO] : nil;
 }
 
-- (NSURL *) originalURL
-{
+- (NSURL *) originalURL {
 	NSURLRequest * request = _task ? [_task originalRequest] : nil;
 	return request ? [request URL] : nil;
 }
 
-- (NSUInteger) taskIdentifier
-{
+- (NSUInteger) taskIdentifier {
 	return _task ? [_task taskIdentifier] : 0;
 }
 
 - (BOOL) moveToDestivationFromURL:(NSURL *) fromURL
-						withError:(NSError **) error
-{
-	if (fromURL) 
-	{
-//		self.task = nil;
+						withError:(NSError **) error {
+	if (fromURL) {
 		NSString * storePath = self.storePath;
 		
 		BOOL isDir = YES;
 		NSFileManager * manager = [NSFileManager defaultManager];
-		if ([manager fileExistsAtPath:storePath isDirectory:&isDir]) 
-		{
-			if (isDir) 
-			{
-				if (error) 
-				{
+		if ([manager fileExistsAtPath:storePath isDirectory:&isDir]) {
+			if (isDir) {
+				if (error) {
 					NSString * text = NSLocalizedString(@"Destination path exists and it's folder.", nil);
 					NSError * e = [[NSError alloc] initWithDomain:@"REDownloadTasksQueue" 
 															 code:-1
@@ -174,9 +150,7 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 					*error = e;
 				}
 				return NO;
-			}
-			else
-			{
+			} else {
 				if (![manager removeItemAtPath:storePath error:error]) return NO;
 			}
 		}
@@ -186,24 +160,19 @@ static const NSString * const kRequestCachePolicyKey = @"cachep";
 	return NO;
 }
 
-- (id) init
-{
+- (id) init {
 	self = [super init];
-	if (self) 
-	{
+	if (self) {
 		_bytesWritted = -1;
 		_bytesExpectedToWrite = -1;
 	}
 	return self;
 }
 
-+ (REDownloadTasksQueueTaskInfo *) infoWithTask:(NSURLSessionDownloadTask *) downloadTask
-{
-	if (downloadTask && [downloadTask isKindOfClass:[NSURLSessionDownloadTask class]])
-	{
++ (REDownloadTasksQueueTaskInfo *) infoWithTask:(NSURLSessionDownloadTask *) downloadTask {
+	if (downloadTask && [downloadTask isKindOfClass:[NSURLSessionDownloadTask class]]) {
 		REDownloadTasksQueueTaskInfo * info = [[REDownloadTasksQueueTaskInfo alloc] init];
-		if (info)
-		{
+		if (info) {
 			info.task = downloadTask;
 		}
 		return info;

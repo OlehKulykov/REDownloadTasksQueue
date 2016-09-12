@@ -32,63 +32,71 @@
 
 const NSTimeInterval kREDownloadTasksQueueDefaultRequestTimeout = 40;
 const NSURLRequestCachePolicy kREDownloadTasksQueueDefaultRequestCachePolicy = NSURLRequestReloadIgnoringCacheData;
-NSString * const kREDownloadTasksQueueProgressChangedNotification = @"kREDownloadTasksQueueProgressChangedNotification";
-NSString * const kREDownloadTasksQueueDidDownloadURLProgressChangedNotification = @"kREDownloadTasksQueueDidDownloadURLProgressChangedNotification";
-NSString * const kREDownloadTasksQueueErrorNotification = @"kREDownloadTasksQueueErrorNotification";
-NSString * const kREDownloadTasksQueueDidFinishedNotification = @"kREDownloadTasksQueueDidFinishedNotification";
-NSString * const kREDownloadTasksQueueProgressKey = @"progress";
-NSString * const kREDownloadTasksQueueUserObjectKey = @"userObject";
-NSString * const kREDownloadTasksQueueQueueKey = @"queue";
-NSString * const kREDownloadTasksQueueErrorKey = @"error";
-NSString * const kREDownloadTasksQueueStoreURLKey = @"storeURL";
-NSString * const kREDownloadTasksQueueDownloadURLKey = @"downloadURL";
+NSString * const _Nonnull kREDownloadTasksQueueProgressChangedNotification = @"kREDownloadTasksQueueProgressChangedNotification";
+NSString * const _Nonnull kREDownloadTasksQueueDidDownloadURLProgressChangedNotification = @"kREDownloadTasksQueueDidDownloadURLProgressChangedNotification";
+NSString * const _Nonnull kREDownloadTasksQueueErrorNotification = @"kREDownloadTasksQueueErrorNotification";
+NSString * const _Nonnull kREDownloadTasksQueueDidFinishedNotification = @"kREDownloadTasksQueueDidFinishedNotification";
+NSString * const _Nonnull kREDownloadTasksQueueProgressKey = @"progress";
+NSString * const _Nonnull kREDownloadTasksQueueUserObjectKey = @"userObject";
+NSString * const _Nonnull kREDownloadTasksQueueQueueKey = @"queue";
+NSString * const _Nonnull kREDownloadTasksQueueErrorKey = @"error";
+NSString * const _Nonnull kREDownloadTasksQueueStoreURLKey = @"storeURL";
+NSString * const _Nonnull kREDownloadTasksQueueDownloadURLKey = @"downloadURL";
 
 @implementation REDownloadTasksQueue
 
-static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
-{
+static bool ___initRecursiveMutex(pthread_mutex_t * mutex) {
 	pthread_mutexattr_t attr;
-	if (pthread_mutexattr_init(&attr) == 0)
-	{
+	if (pthread_mutexattr_init(&attr) == 0) {
 		bool isInit = false;
-		if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == 0)
+		if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == 0) {
 			isInit = (pthread_mutex_init(mutex, &attr) == 0);
+		}
 		pthread_mutexattr_destroy(&attr);
 		return isInit;
 	}
 	return false;
 }
 
-- (void) lock
-{
+- (void) lock {
 	pthread_mutex_lock(&_mutex);
 }
 
-- (void) unlock
-{
+- (void) unlock {
 	pthread_mutex_unlock(&_mutex);
 }
 
-- (BOOL) isCanceled
-{
-	BOOL isC = NO;
+- (BOOL) isCanceled {
+	BOOL value = NO;
 	pthread_mutex_lock(&_mutex);
-	isC = _isCanceled;
+	value = _isCanceled;
 	pthread_mutex_unlock(&_mutex);
-	return isC;
+	return value;
 }
 
-- (NSUInteger) tasksCount
-{
-	NSUInteger count = 0;
+- (NSUInteger) tasksCount {
+	NSUInteger value = 0;
 	pthread_mutex_lock(&_mutex);
-	count = _infos ? [_infos count] : 0;
+	value = _infos ? [_infos count] : 0;
 	pthread_mutex_unlock(&_mutex);
-	return count;
+	return value;
 }
 
-- (BOOL) startNextTask
-{
+- (BOOL) continueOnTaskError {
+	BOOL value = NO;
+	pthread_mutex_lock(&_mutex);
+	value = _isContinueOnTaskError;
+	pthread_mutex_unlock(&_mutex);
+	return value;
+}
+
+- (void) setContinueOnTaskError:(BOOL) value {
+	pthread_mutex_lock(&_mutex);
+	_isContinueOnTaskError = value;
+	pthread_mutex_unlock(&_mutex);
+}
+
+- (BOOL) startNextTask {
 	if (_isCanceled) return NO;
 	BOOL isStarted = NO;
 	
@@ -115,8 +123,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	return isStarted;
 }
 
-- (void) reportDidDownloadURLProgressWithInfo:(REDownloadTasksQueueTaskInfo *) info
-{
+- (void) reportDidDownloadURLProgressWithInfo:(REDownloadTasksQueueTaskInfo *) info {
 	if (!info || _reportType == REDownloadTasksQueueReportNone) return;
 
 	const float progress = [self downloadProgress];
@@ -124,8 +131,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	NSURL * toURL = [info storeURL];
 	NSURL * fromURL = [info originalURL];
 	NSMutableDictionary * userInfo = nil;
-	if (_reportType & REDownloadTasksQueueReportViaNotifications)
-	{
+	if (_reportType & REDownloadTasksQueueReportViaNotifications) {
 		userInfo = [NSMutableDictionary dictionaryWithCapacity:5];
 		[userInfo setObject:self forKey:kREDownloadTasksQueueQueueKey];
 		[userInfo setObject:_userObject ? _userObject : [NSNull null]
@@ -147,15 +153,13 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	});
 }
 
-- (void) reportProgress
-{
+- (void) reportProgress {
 	if (_reportType == REDownloadTasksQueueReportNone) return;
 	
 	const float progress = [self downloadProgress];
 	
 	NSMutableDictionary * info = nil;
-	if (_reportType & REDownloadTasksQueueReportViaNotifications)
-	{
+	if (_reportType & REDownloadTasksQueueReportViaNotifications) {
 		info = [NSMutableDictionary dictionaryWithCapacity:3];
 		[info setObject:self forKey:kREDownloadTasksQueueQueueKey];
 		[info setObject:_userObject ? _userObject : [NSNull null]
@@ -175,14 +179,12 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	});
 }
 
-- (void) reportFinished
-{
+- (void) reportFinished {
 	if (_isFinished || _reportType == REDownloadTasksQueueReportNone) return;
 	_isFinished = YES;
 	
 	NSMutableDictionary * info = nil;
-	if (_reportType & REDownloadTasksQueueReportViaNotifications)
-	{
+	if (_reportType & REDownloadTasksQueueReportViaNotifications) {
 		info = [NSMutableDictionary dictionaryWithCapacity:2];
 		[info setObject:self forKey:kREDownloadTasksQueueQueueKey];
 		[info setObject:_userObject ? _userObject : [NSNull null]
@@ -202,16 +204,14 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 }
 
 - (void) reportError:(NSError *) error
-			withInfo:(REDownloadTasksQueueTaskInfo *) info
-{
+			withInfo:(REDownloadTasksQueueTaskInfo *) info {
 	if (_lastError || !error || !info || _reportType == REDownloadTasksQueueReportNone) return;
 	self.lastError = error;
 	
 	NSURL * toURL = [info storeURL];
 	NSURL * fromURL = [info originalURL];
 	NSMutableDictionary * userInfo = nil;
-	if (_reportType & REDownloadTasksQueueReportViaNotifications)
-	{
+	if (_reportType & REDownloadTasksQueueReportViaNotifications) {
 		userInfo = [NSMutableDictionary dictionaryWithCapacity:5];
 		[userInfo setObject:self forKey:kREDownloadTasksQueueQueueKey];
 		[userInfo setObject:_userObject ? _userObject : [NSNull null]
@@ -233,8 +233,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	});
 }
 
-- (BOOL) addURL:(NSURL *) url withStorePath:(NSString *) storePath
-{
+- (BOOL) addURL:(NSURL *) url withStorePath:(NSString *) storePath {
 	if (!url || [url isFileURL] || [url isFileReferenceURL]) return NO;
 	if (!storePath || [storePath length] == 0) return NO;
 	
@@ -245,20 +244,17 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 }
 
 - (BOOL) addURLString:(NSString *) urlString
-		withStorePath:(NSString *) storePath
-{
+		withStorePath:(NSString *) storePath {
 	return (NSStringIsNotEmpty(urlString)) ? [self addURL:[NSURL URLWithString:urlString] withStorePath:storePath] : NO;
 }
 
-- (BOOL) addURLRequest:(NSURLRequest *) urlRequest withStorePath:(NSString *) storePath
-{
+- (BOOL) addURLRequest:(NSURLRequest *) urlRequest withStorePath:(NSString *) storePath {
 	NSURL * url = urlRequest ? [urlRequest URL] : nil;
     if (!url || [url isFileURL] || [url isFileReferenceURL]) return NO;
     if (NSStringIsEmpty(storePath)) return NO;
     
     REDownloadTasksQueueTaskInfo * info = [REDownloadTasksQueueTaskInfo infoWithTask:[_session downloadTaskWithRequest:urlRequest completionHandler:NULL]];
-    if (info)
-    {
+    if (info) {
 		info.storePath = storePath;
 
         pthread_mutex_lock(&_mutex);
@@ -273,15 +269,11 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
     return NO;
 }
 
-- (REDownloadTasksQueueTaskInfo *) infoForTask:(NSURLSessionDownloadTask *) task
-{
-	if (task && NSArrayIsNotEmpty(_infos))
-	{
+- (REDownloadTasksQueueTaskInfo *) infoForTask:(NSURLSessionDownloadTask *) task {
+	if (task && NSArrayIsNotEmpty(_infos)) {
 		const NSUInteger tID = [task taskIdentifier];
-		for (REDownloadTasksQueueTaskInfo * info in _infos) 
-		{
-			if ([info taskIdentifier] == tID)
-			{
+		for (REDownloadTasksQueueTaskInfo * info in _infos)  {
+			if ([info taskIdentifier] == tID) {
 				return info;
 			}
 		}
@@ -289,31 +281,26 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	return nil;
 }
 
-- (void) start
-{
+- (void) start {
 	_isCanceled = NO;
 	[self startNextTask];
 }
 
-- (void) cancelWithCompletionHandler:(void(^)(void)) handler
-{
+- (void) cancelWithCompletionHandler:(void(^)(void)) handler {
 	_isCanceled = YES;
 	
 	pthread_mutex_lock(&_mutex);
 	NSMutableNumber * runningCount = [NSMutableNumber numberWithInt:0];
 	NSArray * infosArray = self.infos;
-	if (NSArrayIsNotEmpty(infosArray))
-	{
+	if (NSArrayIsNotEmpty(infosArray)) {
 		int count = 0;
-		for (REDownloadTasksQueueTaskInfo * info in infosArray) 
-		{
+		for (REDownloadTasksQueueTaskInfo * info in infosArray)  {
 			const BOOL isCanceledRunning = [info cancelRunningWithCompletionHandler:^{
 				[self lock];
 				const int count = [runningCount intValue] - 1;
 				[runningCount setIntValue:count];
 				[self unlock];
-				if (count <= 0) 
-				{
+				if (count <= 0) {
 					[runningCount setIntValue:INT_MAX];
 					if (handler) dispatch_async(dispatch_get_main_queue(), ^{ handler(); });
 				}
@@ -321,18 +308,14 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 			if (isCanceledRunning) count++;
 		}
 		[runningCount setIntValue:count];
-		if (count == 0 && handler)
-		{
+		if (count == 0 && handler) {
 			dispatch_async(dispatch_get_main_queue(), ^{ handler(); });
 		}
-	}
-	else if (handler)
-	{
+	} else if (handler) {
 		dispatch_async(dispatch_get_main_queue(), ^{ handler(); });
 	}
 
-	if (_session)
-	{
+	if (_session) {
 		[_session resetWithCompletionHandler:^{
 			NSURLSession * session = self.session;
 			self.session = nil;
@@ -343,60 +326,52 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	pthread_mutex_unlock(&_mutex);
 }
 
-- (float) downloadProgress
-{
-	double p = 0;
+- (float) downloadProgress {
+	double value = 0;
 	
 	pthread_mutex_lock(&_mutex);
-	p = _done / _total;
+	value = _done / _total;
 	
-	if (p < 0) p = 0;
-	else if (p > 1) p = 1;
+	if (value < 0) value = 0;
+	else if (value > 1) value = 1;
 	pthread_mutex_unlock(&_mutex);
 	
-	return (float)p;
+	return (float)value;
 }
 
-- (NSUInteger) numberOfResumedTasks
-{
-	NSUInteger number = 0;
+- (NSUInteger) numberOfResumedTasks {
+	NSUInteger value = 0;
 	pthread_mutex_lock(&_mutex);
-	number = _numberResumed;
+	value = _numberResumed;
 	pthread_mutex_unlock(&_mutex);
-	return number;
+	return value;
 }
 
-- (void) setNumberOfResumedTasks:(NSUInteger) value
-{
-	if (value > 0 && value <= 64) 
-	{
+- (void) setNumberOfResumedTasks:(NSUInteger) value {
+	if (value > 0 && value <= 64)  {
 		pthread_mutex_lock(&_mutex);
 		_numberResumed = value;
 		pthread_mutex_unlock(&_mutex);
 	}
 }
 
-- (NSUInteger) numberOfMaximumConcurrentTasks
-{
-	NSUInteger number = 0;
+- (NSUInteger) numberOfMaximumConcurrentTasks {
+	NSUInteger value = 0;
 	pthread_mutex_lock(&_mutex);
-	number = self.operationQueue.maxConcurrentOperationCount;
+	value = self.operationQueue.maxConcurrentOperationCount;
 	pthread_mutex_unlock(&_mutex);
-	return number;
+	return value;
 }
 
-- (void) setNumberOfMaximumConcurrentTasks:(NSUInteger) value
-{
-	if (value > 0 && value <= 32) 
-	{
+- (void) setNumberOfMaximumConcurrentTasks:(NSUInteger) value {
+	if (value > 0 && value <= 32) {
 		pthread_mutex_lock(&_mutex);
 		self.operationQueue.maxConcurrentOperationCount = value;
 		pthread_mutex_unlock(&_mutex);
 	}
 }
 
-- (BOOL) downloadTasksQueueAddInit
-{
+- (BOOL) downloadTasksQueueAddInit {
 	_reportType = REDownloadTasksQueueReportViaNotifications | REDownloadTasksQueueReportViaBlocks;
 	_total = 0;
 	_done = 0;
@@ -406,6 +381,7 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	_timeoutInterval = kREDownloadTasksQueueDefaultRequestTimeout;
 	_isCanceled = NO;
 	_isFinished = NO;
+	_isContinueOnTaskError = NO;
 	self.userObject = [NSNull null];
 	
 	self.sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -426,70 +402,58 @@ static bool ___initRecursiveMutex(pthread_mutex_t * mutex)
 	return YES;
 }
 
-- (id) init
-{
+- (id) init {
 	self = [super init];
-	if (self) 
-	{
+	if (self) {
 		if (![self downloadTasksQueueAddInit]) return nil;
 	}
 	return self;
 }
 
-- (void) dealloc
-{
-	[self cancelWithCompletionHandler:NULL];
+- (void) dealloc {
+	[self cancelWithCompletionHandler:nil];
 	pthread_mutex_destroy(&_mutex);
 }
 
 #pragma mark - session delegate
 - (void) URLSession:(NSURLSession *) session 
 	   downloadTask:(NSURLSessionDownloadTask *) downloadTask
-didFinishDownloadingToURL:(NSURL *) location
-{
+didFinishDownloadingToURL:(NSURL *) location {
+	
 	pthread_mutex_lock(&_mutex);
 	REDownloadTasksQueueTaskInfo * info = [self infoForTask:downloadTask];
-	if (info) 
-	{
-		_active--;
+	if (info)  {
+		if (_active > 0) {
+			_active--;
+		}
 		NSError * error = nil;
-		if ([info moveToDestivationFromURL:location withError:&error])
-		{
+		if ([info moveToDestivationFromURL:location withError:&error]) {
 			[_infos removeObject:info];
 			
 			BOOL isFinished = NO;
-			if (NSArrayIsEmpty(_infos))
-			{
+			if (NSArrayIsEmpty(_infos)) {
 				_done = _total;
 				isFinished = YES;
-			}
-			else
-			{
+			} else {
 				const int64_t bytesExpectedToWrite = info.bytesExpectedToWrite;
 				const int64_t bytesWritted = info.bytesWritted;
-				if (bytesExpectedToWrite > 0 && bytesWritted > 0) 
-				{
+				if (bytesExpectedToWrite > 0 && bytesWritted > 0) {
 					const int64_t writed = bytesExpectedToWrite - bytesWritted;
 					const double progress = ((double)writed) / bytesExpectedToWrite;
 					_done += progress;
-				}
-				else
-				{
+				} else {
 					_done += 1;
 				}
 				[self startNextTask];
 			}
 			[self reportProgress];
 			[self reportDidDownloadURLProgressWithInfo:info];
-			if (isFinished)
-			{
-				[self cancelWithCompletionHandler:NULL];
+			if (isFinished) {
+				[self cancelWithCompletionHandler:nil];
 				[self reportFinished];
 			}
-		}
-		else
-		{
-			[self cancelWithCompletionHandler:NULL];
+		} else {
+			[self cancelWithCompletionHandler:nil];
 			[self reportError:error withInfo:info];
 		}
 	}
@@ -500,16 +464,14 @@ didFinishDownloadingToURL:(NSURL *) location
 	   downloadTask:(NSURLSessionDownloadTask *) downloadTask
 	   didWriteData:(int64_t) bytesWritten
   totalBytesWritten:(int64_t) totalBytesWritten
-totalBytesExpectedToWrite:(int64_t) totalBytesExpectedToWrite
-{
+totalBytesExpectedToWrite:(int64_t) totalBytesExpectedToWrite {
+	
 	if (bytesWritten <= 0 || totalBytesWritten <= 0 || totalBytesExpectedToWrite <= 0) return;
 	
 	pthread_mutex_lock(&_mutex);
 	REDownloadTasksQueueTaskInfo * info = [self infoForTask:downloadTask];
-	if (info) 
-	{
-		if (info.bytesWritted <= 0 || info.bytesExpectedToWrite <= 0) 
-		{
+	if (info) {
+		if (info.bytesWritted <= 0 || info.bytesExpectedToWrite <= 0) {
 			_active++;
 		}
 		
@@ -526,18 +488,37 @@ totalBytesExpectedToWrite:(int64_t) totalBytesExpectedToWrite
 
 - (void) URLSession:(NSURLSession *) session 
 			   task:(NSURLSessionTask *) task
-didCompleteWithError:(NSError *) error
-{
+didCompleteWithError:(NSError *) error {
+	
 	pthread_mutex_lock(&_mutex);
-	if ([task isKindOfClass:[NSURLSessionDownloadTask class]]) 
-	{
+	if ([task isKindOfClass:[NSURLSessionDownloadTask class]]) {
 		REDownloadTasksQueueTaskInfo * info = [self infoForTask:(NSURLSessionDownloadTask *)task];
-		if (info) 
-		{
-			if (!info.isCanceled && info.isStarted) 
-			{
-				[self cancelWithCompletionHandler:NULL];
-				[self reportError:error withInfo:info];
+		if (info) {
+			if (!info.isCanceled && info.isStarted) {
+				if (_isContinueOnTaskError) {
+					if (_active > 0) {
+						_active--;
+					}
+					[_infos removeObject:info];
+					
+					BOOL isFinished = NO;
+					if (NSArrayIsEmpty(_infos)) {
+						_done = _total;
+						isFinished = YES;
+					} else {
+						_done += 1;
+						[self startNextTask];
+					}
+					[self reportProgress];
+					[self reportError:error withInfo:info];
+					if (isFinished) {
+						[self cancelWithCompletionHandler:nil];
+						[self reportFinished];
+					}
+				} else {
+					[self cancelWithCompletionHandler:nil];
+					[self reportError:error withInfo:info];
+				}
 			}
 		}
 	}

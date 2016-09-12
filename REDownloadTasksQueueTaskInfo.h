@@ -25,33 +25,33 @@
 
 @interface REDownloadTasksQueueTaskInfo : NSObject
 
-@property (nonatomic, strong) NSURLSessionDownloadTask * task;
-@property (nonatomic, strong) NSString * storePath;
-@property (nonatomic, strong) NSData * resumeData;
+@property (nonatomic, strong, nullable) NSURLSessionDownloadTask * task;
+@property (nonatomic, strong, nullable) NSString * storePath;
+@property (nonatomic, strong, nullable) NSData * resumeData;
 @property (nonatomic, assign, readwrite) int64_t bytesWritted;
 @property (nonatomic, assign, readwrite) int64_t bytesExpectedToWrite;
 @property (nonatomic, assign, readwrite) BOOL isStarted;
 @property (nonatomic, assign, readwrite) BOOL isCanceled;
 
-- (BOOL) cancelRunningWithCompletionHandler:(void(^)(void)) handler;
+- (BOOL) cancelRunningWithCompletionHandler:(nullable void(^)(void)) handler;
 
 - (void) cancel;
 
-- (NSURL *) storeURL;
+- (nullable NSURL *) storeURL;
 
-- (NSURL *) originalURL;
+- (nullable NSURL *) originalURL;
 
 - (NSUInteger) taskIdentifier;
 
-- (BOOL) moveToDestivationFromURL:(NSURL *) fromURL
-						withError:(NSError **) error;
+- (BOOL) moveToDestivationFromURL:(nullable NSURL *) fromURL
+						withError:(NSError * _Nullable * _Nullable) error;
 
-+ (REDownloadTasksQueueTaskInfo *) infoWithDictionary:(NSDictionary *) dict
-										   forSession:(NSURLSession *) session;
++ (nullable REDownloadTasksQueueTaskInfo *) infoWithDictionary:(nonnull NSDictionary *) dict
+													forSession:(nonnull NSURLSession *) session;
 
-+ (REDownloadTasksQueueTaskInfo *) infoWithTask:(NSURLSessionDownloadTask *) downloadTask;
++ (nullable REDownloadTasksQueueTaskInfo *) infoWithTask:(nonnull NSURLSessionDownloadTask *) downloadTask;
 
-+ (NSMutableDictionary *) serializeInfoToDictionary:(REDownloadTasksQueueTaskInfo *) info;
++ (nullable NSMutableDictionary *) serializeInfoToDictionary:(nonnull REDownloadTasksQueueTaskInfo *) info;
 
 @end
 

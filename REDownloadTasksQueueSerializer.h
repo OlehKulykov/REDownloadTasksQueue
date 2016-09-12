@@ -25,21 +25,21 @@
 
 @interface REDownloadTasksQueueSerializer : NSObject
 
-@property (nonatomic, strong) NSString * restorationID;
+@property (nonatomic, strong, nullable) NSString * restorationID;
 @property (nonatomic, assign, readwrite) double total;
 @property (nonatomic, assign, readwrite) double done;
 
 - (BOOL) finishSerialization;
 
-- (BOOL) prepareSerialize:(NSArray *) infosArray;
+- (BOOL) prepareSerialize:(nonnull NSArray *) infosArray;
 
-- (NSMutableArray *) deserializeTasksForSession:(NSURLSession *) session;
+- (nullable NSMutableArray *) deserializeTasksForSession:(nonnull NSURLSession *) session;
 
-- (id) initWithRestorationID:(NSString *) restorationID;
+- (nullable id) initWithRestorationID:(nonnull NSString *) restorationID;
 
-+ (void) removeRestorationData:(NSString *) restorationID;
++ (void) removeRestorationData:(nonnull NSString *) restorationID;
 
-+ (NSArray *) allRestorationIDs;
++ (nullable NSArray *) allRestorationIDs;
 
 
 @end

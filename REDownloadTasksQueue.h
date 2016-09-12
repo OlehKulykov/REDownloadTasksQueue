@@ -63,8 +63,7 @@
 /**
  @brief Reporting type of the queue.
  */
-typedef NS_ENUM(NSUInteger, REDownloadTasksQueueReportType) 
-{
+typedef NS_ENUM(NSUInteger, REDownloadTasksQueueReportType) {
 	/**
 	 @brief Silent mode. In this case notifications and callback will be ignored.
 	 */
@@ -106,7 +105,7 @@ RE_EXTERN const NSURLRequestCachePolicy kREDownloadTasksQueueDefaultRequestCache
  @warning Key = kREDownloadTasksQueueUserObjectKey;  Value = user object or [NSNull null]
  @warning Key = kREDownloadTasksQueueProgressKey;  Value = 'NSNumber' object.
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueProgressChangedNotification;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueProgressChangedNotification;
 
 
 /**
@@ -118,7 +117,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueProgressChangedNotification;
  @warning Key = kREDownloadTasksQueueStoreURLKey; Value = 'NSURL' object.
  @warning Key = kREDownloadTasksQueueProgressKey;  Value = 'NSNumber' object.
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueDidDownloadURLProgressChangedNotification;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDidDownloadURLProgressChangedNotification;
 
 
 /**
@@ -130,7 +129,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDidDownloadURLProgressChangedNot
  @warning Key = kREDownloadTasksQueueDownloadURLKey; Value = 'NSURL' object.
  @warning Key = kREDownloadTasksQueueStoreURLKey; Value = 'NSURL' object.
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueErrorNotification;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueErrorNotification;
 
 
 /**
@@ -139,49 +138,49 @@ RE_EXTERN NSString * const kREDownloadTasksQueueErrorNotification;
  @warning Key = kREDownloadTasksQueueQueueKey; Value = DownloadTasksQueue object.
  @warning Key = kREDownloadTasksQueueUserObjectKey;  Value = user object or [NSNull null]
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueDidFinishedNotification;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDidFinishedNotification;
 
 
 /**
  @brief Key used for download queue.
  @detailed Value is @"queue".
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueQueueKey;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueQueueKey;
 
 
 /**
  @brief Key used for download progress.
  @detailed Value is @"progress".
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueProgressKey;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueProgressKey;
 
 
 /**
  @brief Key used for queue user object.
  @detailed Value is @"userObject".
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueUserObjectKey;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueUserObjectKey;
 
 
 /**
  @brief Key used for queue error.
  @detailed Value is @"error".
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueErrorKey;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueErrorKey;
 
 
 /**
  @brief Key used for store file URL object. To URL.
  @detailed Value is @"storeURL".
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueStoreURLKey;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueStoreURLKey;
 
 
 /**
  @brief Key used for download URL object. From URL.
  @detailed Value is @"downloadURL".
  */
-RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
+RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDownloadURLKey;
 
 
 @class REDownloadTasksQueue;
@@ -198,7 +197,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @brief Called when all queue tasks finished.
  @param queue The download queue object.
  */
-- (void) onREDownloadTasksQueueFinished:(REDownloadTasksQueue *) queue;
+- (void) onREDownloadTasksQueueFinished:(nonnull REDownloadTasksQueue *) queue;
 
 
 /**
@@ -206,7 +205,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param queue The download queue object.
  @param progress Downloading progress in range from 0 to 1, [0, 1].
  */
-- (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue 
+- (void) onREDownloadTasksQueue:(nonnull REDownloadTasksQueue *) queue
 					   progress:(float) progress;
 
 
@@ -217,9 +216,9 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param storeURL URL for storing downloaded data.
  @param progress Downloading progress in range from 0 to 1, [0, 1].
  */
-- (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue
-				 didDownloadURL:(NSURL *) downloadURL
-				 andStoredToURL:(NSURL *) storeURL
+- (void) onREDownloadTasksQueue:(nonnull REDownloadTasksQueue *) queue
+				 didDownloadURL:(nullable NSURL *) downloadURL
+				 andStoredToURL:(nullable NSURL *) storeURL
 				   withProgress:(float) progress;
 
 
@@ -230,10 +229,10 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param downloadURL Downloaded URL.
  @param storeURL URL for storing downloaded data.
  */
-- (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue 
-						  error:(NSError *) error 
-					downloadURL:(NSURL *) downloadURL 
-					   storeURL:(NSURL *) storeURL;
+- (void) onREDownloadTasksQueue:(nonnull REDownloadTasksQueue *) queue
+						  error:(nullable NSError *) error
+					downloadURL:(nullable NSURL *) downloadURL
+					   storeURL:(nullable NSURL *) storeURL;
 
 @end
 
@@ -247,7 +246,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 /**
  @brief Weak queue delegate.
  */
-@property (nonatomic, weak) id<REDownloadTasksQueueDelegate> delegate;
+@property (nonatomic, weak, nullable) id<REDownloadTasksQueueDelegate> delegate;
 
 
 /**
@@ -282,7 +281,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @brief User defined object for identifing queue. Posted with notifications.
  @detailed Default is '[NSNull null]'.
  */
-@property (nonatomic, strong) id userObject;
+@property (nonatomic, strong, nullable) id userObject;
 
 
 /**
@@ -293,11 +292,17 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
 
 
 /**
+ @brief Should queue continue when task error occupied.
+ @detained Default is NO.
+ */
+@property (nonatomic, assign, readwrite) BOOL continueOnTaskError;
+
+/**
  @brief Block handler for reporting queue download progress. Can be NULL.
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onProgressHandler)(REDownloadTasksQueue * queue, float progress);
+@property (nonatomic, copy) void(^onProgressHandler)(REDownloadTasksQueue * _Nonnull queue, float progress);
 
 
 /**
@@ -307,7 +312,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param storeURL URL for storing downloaded data.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onDidDownloadURLProgressHandler)(REDownloadTasksQueue * queue, NSURL * downloadURL, NSURL * storeURL, float progress);
+@property (nonatomic, copy) void(^onDidDownloadURLProgressHandler)(REDownloadTasksQueue * _Nonnull queue, NSURL * _Nullable downloadURL, NSURL * _Nullable storeURL, float progress);
 
 
 /**
@@ -315,7 +320,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onFinishedHandler)(REDownloadTasksQueue * queue);
+@property (nonatomic, copy) void(^onFinishedHandler)(REDownloadTasksQueue * _Nonnull queue);
 
 
 /**
@@ -323,7 +328,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onErrorOccurredHandler)(REDownloadTasksQueue * queue, NSError * error, NSURL * downloadURL, NSURL * storeFilePathURL);
+@property (nonatomic, copy) void(^onErrorOccurredHandler)(REDownloadTasksQueue * _Nonnull queue, NSError * _Nullable error, NSURL * _Nullable downloadURL, NSURL * _Nullable storeFilePathURL);
 
 
 /**
@@ -353,7 +358,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param storePath Store path for downloaded data. Can be nil.
  @return YES - if successfully added, othervice NO.
  */
-- (BOOL) addURLString:(NSString *) urlString withStorePath:(NSString *) storePath;
+- (BOOL) addURLString:(nullable NSString *) urlString withStorePath:(nullable NSString *) storePath;
 
 
 /**
@@ -362,7 +367,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param storePath Store path for downloaded data. Can be nil.
  @return YES - if successfully added, othervice NO.
  */
-- (BOOL) addURL:(NSURL *) url withStorePath:(NSString *) storePath;
+- (BOOL) addURL:(nullable NSURL *) url withStorePath:(nullable NSString *) storePath;
 
 
 /**
@@ -371,7 +376,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  @param storePath Store path for downloaded data. Can be nil.
  @return YES - if successfully added, othervice NO.
  */
-- (BOOL) addURLRequest:(NSURLRequest *) urlRequest withStorePath:(NSString *) storePath;
+- (BOOL) addURLRequest:(nullable NSURLRequest *) urlRequest withStorePath:(nullable NSString *) storePath;
 
 
 /**
@@ -387,7 +392,7 @@ RE_EXTERN NSString * const kREDownloadTasksQueueDownloadURLKey;
  holds strongly this queue.
  @param handler Handler triger on all tasks cancelled on 'main queue'. Can be NULL.
  */
-- (void) cancelWithCompletionHandler:(void(^)(void)) handler;
+- (void) cancelWithCompletionHandler:(nullable void(^)(void)) handler;
 
 @end
 

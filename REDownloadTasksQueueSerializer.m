@@ -41,15 +41,11 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 
 @implementation REDownloadTasksQueueSerializer
 
-- (BOOL) finishSerialization
-{
-	if (NSArrayIsNotEmpty(_storeArray))
-	{
+- (BOOL) finishSerialization {
+	if (NSArrayIsNotEmpty(_storeArray)) {
 		NSString * folder = [REDownloadTasksQueueSerializer storeFolder];
-		if (NSStringIsNotEmpty(folder))
-		{
-			if (![[NSFileManager defaultManager] fileExistsAtPath:folder])
-			{
+		if (NSStringIsNotEmpty(folder)) {
+			if (![[NSFileManager defaultManager] fileExistsAtPath:folder]) {
 				NSError * error = nil;
 				const BOOL isCreated = [[NSFileManager defaultManager] createDirectoryAtPath:folder withIntermediateDirectories:YES attributes:nil error:&error];
 				if (!isCreated || error) return NO;
@@ -68,14 +64,11 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return NO;
 }
 
-- (BOOL) prepareSerialize:(NSArray *) infosArray
-{
+- (BOOL) prepareSerialize:(NSArray *) infosArray {
 	const NSUInteger count = NSArrayCount(infosArray);
-	if (count) 
-	{
+	if (count)  {
 		NSMutableArray * array = [NSMutableArray arrayWithCapacity:count];
-		for (REDownloadTasksQueueTaskInfo * info in infosArray) 
-		{
+		for (REDownloadTasksQueueTaskInfo * info in infosArray) {
 			NSDictionary * infoDict = [REDownloadTasksQueueTaskInfo serializeInfoToDictionary:info];
 			if (infoDict) [array addObject:infoDict];
 		}
@@ -85,35 +78,26 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return NO;
 }
 
-+ (void) removeRestorationData:(NSString *) restorationID
-{
++ (void) removeRestorationData:(NSString *) restorationID {
 	NSString * path = (NSStringIsNotEmpty(restorationID)) ? [[REDownloadTasksQueueSerializer storeFolder] stringByAppendingPathComponent:restorationID] : nil;
-	if (path) 
-	{
+	if (path) {
 		[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 	}
 }
 
-+ (NSArray *) allRestorationIDs
-{
++ (NSArray *) allRestorationIDs {
 	NSString * path = [REDownloadTasksQueueSerializer storeFolder];
-	if (NSStringIsNotEmpty(path))
-	{
+	if (NSStringIsNotEmpty(path)) {
 		BOOL isDir = NO;
-		if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) 
-		{
-			if (isDir) 
-			{
+		if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) {
+			if (isDir) {
 				NSError * error = nil;
 				NSArray * contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
 				NSMutableArray * ids = nil;
-				if (NSArrayIsNotEmpty(contents))
-				{
-					for (NSString * p in contents) 
-					{
+				if (NSArrayIsNotEmpty(contents)) {
+					for (NSString * p in contents) {
 						NSString * last = [p lastPathComponent];
-						if (NSStringIsNotEmpty(last))
-						{
+						if (NSStringIsNotEmpty(last)) {
 							if (ids) [ids addObject:last];
 							else ids = [NSMutableArray arrayWithObject:last];
 						}
@@ -126,8 +110,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return nil;
 }
 
-- (NSMutableArray *) deserializeTasksForSession:(NSURLSession *) session
-{
+- (NSMutableArray *) deserializeTasksForSession:(NSURLSession *) session {
 	if (NSStringIsEmpty(_folderPath) || NSStringIsEmpty(_restorationID) || !session) return nil;
 	NSString * path = [_folderPath stringByAppendingPathComponent:_restorationID];
 	if (NSStringIsEmpty(path)) return nil;
@@ -153,8 +136,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	if (count == 0) return nil;
 	
 	NSMutableArray * infos = [NSMutableArray arrayWithCapacity:count];
-	for (NSDictionary * infoDict in infosArray) 
-	{
+	for (NSDictionary * infoDict in infosArray) {
 		REDownloadTasksQueueTaskInfo * info = [REDownloadTasksQueueTaskInfo infoWithDictionary:infoDict forSession:session];
 		if (info) [infos addObject:info];
 	}
@@ -162,20 +144,16 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return (NSArrayIsNotEmpty(infos)) ? infos : nil;
 }
 
-- (id) initWithRestorationID:(NSString *) restorationID
-{
+- (id) initWithRestorationID:(NSString *) restorationID {
 	self = [super init];
-	if (self) 
-	{
+	if (self) {
 		NSString * path = [REDownloadTasksQueueSerializer storeFolder];
 		if (NSStringIsEmpty(path)) return nil;
 		
 		NSString * testPath = [path stringByAppendingPathComponent:restorationID];
 		BOOL isDir = YES;		
-		if (NSStringIsNotEmpty(testPath) && [[NSFileManager defaultManager] fileExistsAtPath:testPath isDirectory:&isDir])
-		{
-			if (!isDir) 
-			{
+		if (NSStringIsNotEmpty(testPath) && [[NSFileManager defaultManager] fileExistsAtPath:testPath isDirectory:&isDir]) {
+			if (!isDir) {
 				self.restorationID = restorationID;
 				self.folderPath = path;
 			}
@@ -184,22 +162,17 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return (NSStringIsNotEmpty(_restorationID) && NSStringIsNotEmpty(_folderPath)) ? self : nil;
 }
 
-- (id) init
-{
+- (id) init {
 	self = [super init];
-	if (self) 
-	{
+	if (self) {
 		NSString * path = [REDownloadTasksQueueSerializer storeFolder];
 		if (NSStringIsEmpty(path)) return nil;
 		
-		while (NSStringIsEmpty(_restorationID))
-		{
+		while (NSStringIsEmpty(_restorationID)) {
 			NSString * idString = [REDownloadTasksQueueSerializer generateRestorationID];
-			if (NSStringIsNotEmpty(idString))
-			{
+			if (NSStringIsNotEmpty(idString)) {
 				NSString * testPath = [path stringByAppendingPathComponent:idString];
-				if (NSStringIsNotEmpty(testPath) && ![[NSFileManager defaultManager] fileExistsAtPath:testPath])
-				{
+				if (NSStringIsNotEmpty(testPath) && ![[NSFileManager defaultManager] fileExistsAtPath:testPath]) {
 					self.restorationID = idString;
 					self.folderPath = path;
 				}		
@@ -209,28 +182,20 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return self;
 }
 
-- (void) dealloc
-{
-	
-}
-
-+ (NSString *) storeFolder
-{
++ (NSString *) storeFolder {
 	NSArray * list = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	if (NSArrayIsEmpty(list)) return nil;
 	NSString * path = [list lastObject];
 	return (NSStringIsNotEmpty(path)) ? [path stringByAppendingPathComponent:@"REDownloadTasksQueueSerializer"] : nil;
 }
 
-+ (NSString *) generateRestorationID
-{
++ (NSString *) generateRestorationID {
 	char part[128];
 	const int partLen = sprintf(part, 
 								"%llu_%f", 
 								(unsigned long long)arc4random(), 
 								(double)[[NSDate date] timeIntervalSince1970]);
-	if (partLen > 0) 
-	{
+	if (partLen > 0) {
 		unsigned char digest[CC_SHA1_DIGEST_LENGTH];
 		memset(digest, 0, CC_SHA1_DIGEST_LENGTH);
 		
@@ -241,8 +206,7 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 		memset(buff, 0, buffLen);
 		
 		char * buffPtr = buff;
-		for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
-		{
+		for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
 			sprintf(buffPtr, "%02x", digest[i]);
 			buffPtr += 2;
 		}
@@ -252,35 +216,29 @@ NSString * const kDownloadTasksQueueDoneKey = @"done";
 	return nil;
 }
 
-+ (NSData *) dataWithDictionary:(NSDictionary *) dictionary
-{
-	if (dictionary)
-	{
++ (NSData *) dataWithDictionary:(NSDictionary *) dictionary {
+	if (dictionary) {
 		NSError * error = nil;
 		NSData * res = [NSPropertyListSerialization dataWithPropertyList:dictionary 
 																  format:NSPropertyListBinaryFormat_v1_0
 																 options:0
 																   error:&error];
-		if (!error)
-		{
+		if (!error) {
 			return res;
 		}
 	}
 	return nil;
 }
 
-+ (NSDictionary *) dictionaryWithData:(NSData *) data
-{
-	if (data) 
-	{
++ (NSDictionary *) dictionaryWithData:(NSData *) data {
+	if (data) {
 		NSError * error = nil; 
 		NSPropertyListFormat format = (NSPropertyListFormat)0;
 		id res =  [NSPropertyListSerialization propertyListWithData:data 
 															options:0
 															 format:&format
 															  error:&error];
-		if (!error && res)
-		{
+		if (!error && res) {
 			return [res isKindOfClass:[NSDictionary class]] ? (NSDictionary *)res : nil;
 		}
 	}

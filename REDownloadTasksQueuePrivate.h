@@ -24,14 +24,14 @@
 #import <Foundation/Foundation.h>
 #import "REDownloadTasksQueue.h"
 
-@interface REDownloadTasksQueue () <NSURLSessionDownloadDelegate>
-{
+@interface REDownloadTasksQueue () <NSURLSessionDownloadDelegate> {
 @private
 	NSUInteger _numberResumed;
 	NSUInteger _active;
 	pthread_mutex_t _mutex;
 	BOOL _isFinished;
 	BOOL _isCanceled;
+	BOOL _isContinueOnTaskError;
 }
 
 @property (nonatomic, strong) NSMutableArray * infos;

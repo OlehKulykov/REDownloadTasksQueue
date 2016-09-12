@@ -1,4 +1,7 @@
-Changes on version 1.0.4 (current):
+Changes on version 1.1.0 (current):
+- Select continue whole queue or not on some task error. Use queue parameter 'continueOnTaskError'.
+
+Changes on version 1.0.4:
 - Keep task object to track downloaded url.
 
 Changes on version 1.0.1:
