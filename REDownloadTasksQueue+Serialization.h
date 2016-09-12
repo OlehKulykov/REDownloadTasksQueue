@@ -35,7 +35,7 @@
  And after finishing handler will be called in 'main queue'
  @param handler Handler for informing done serializing with restoration identifier. If handler is nil - do nothing.
  */
-- (void) cancelAndSerializeWithRestorationID:(nonnull void(^)(NSString * restorationID)) handler;
+- (void) cancelAndSerializeWithRestorationID:(nonnull void(^)(NSString * _Nonnull restorationID)) handler;
 
 
 /**
@@ -46,7 +46,7 @@
  @param handler Completion handler returned restored queue.
  */
 + (void) createWithRestorationID:(nonnull NSString *) restorationID
-			andCompletionHandler:(nonnull void(^)(REDownloadTasksQueue * queue, NSError * error)) handler;
+			andCompletionHandler:(nonnull void(^)(REDownloadTasksQueue * _Nonnull queue, NSError * _Nullable error)) handler;
 
 
 /**

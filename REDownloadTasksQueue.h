@@ -302,7 +302,7 @@ RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDownloadURLKey;
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onProgressHandler)(REDownloadTasksQueue * _Nonnull queue, float progress);
+@property (nonatomic, copy, nullable) void(^onProgressHandler)(REDownloadTasksQueue * _Nonnull queue, float progress);
 
 
 /**
@@ -312,7 +312,7 @@ RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDownloadURLKey;
  @param storeURL URL for storing downloaded data.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onDidDownloadURLProgressHandler)(REDownloadTasksQueue * _Nonnull queue, NSURL * _Nullable downloadURL, NSURL * _Nullable storeURL, float progress);
+@property (nonatomic, copy, nullable) void(^onDidDownloadURLProgressHandler)(REDownloadTasksQueue * _Nonnull queue, NSURL * _Nullable downloadURL, NSURL * _Nullable storeURL, float progress);
 
 
 /**
@@ -320,7 +320,7 @@ RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDownloadURLKey;
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onFinishedHandler)(REDownloadTasksQueue * _Nonnull queue);
+@property (nonatomic, copy, nullable) void(^onFinishedHandler)(REDownloadTasksQueue * _Nonnull queue);
 
 
 /**
@@ -328,7 +328,7 @@ RE_EXTERN NSString * const _Nonnull kREDownloadTasksQueueDownloadURLKey;
  @detailed Arrived on 'main queue'.
  @warning Used ONLY if 'REDownloadTasksQueueReportViaBlocks' type present in 'reportType' property.
  */
-@property (nonatomic, copy) void(^onErrorOccurredHandler)(REDownloadTasksQueue * _Nonnull queue, NSError * _Nullable error, NSURL * _Nullable downloadURL, NSURL * _Nullable storeFilePathURL);
+@property (nonatomic, copy, nullable) void(^onErrorOccurredHandler)(REDownloadTasksQueue * _Nonnull queue, NSError * _Nullable error, NSURL * _Nullable downloadURL, NSURL * _Nullable storeFilePathURL);
 
 
 /**
