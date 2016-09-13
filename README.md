@@ -26,21 +26,58 @@ pod 'REDownloadTasksQueue'
 
 
 ### Create and fill queue with URL's
+#### Swift
+```swift
+import REDownloadTasksQueue
+...
+let queue = REDownloadTasksQueue()
+queue.continueOnTaskError = true  // Should queue continue on any task error.
+for ... {
+	let fromURLString = ...
+	let storePath = ...
+	queue.addURLString(fromURLString, withStorePath: storePath) // add as URL string
+	// or
+	queue.addURL(NSURL(string: fromURLString), withStorePath: storePath) // add as URL
+	// or
+	queue.addURLRequest(NSURLRequest(), withStorePath: storePath) // add as setuped request
+}
+queue.start() // start queue
+```
+#### Objective-C
 ```objective-c
-#import "REDownloadTasksQueue.h" // include single queue header file
+#import <REDownloadTasksQueue/REDownloadTasksQueue.h> // include single queue header file
 	
 self.queue = [[REDownloadTasksQueue alloc] init]; // create and store strongly queue object
+_queue.continueOnTaskError = YES; // Should queue continue on any task error.
 for (...) { // iterate URL's
 	NSString * fromURLString = ...; // URL string for download file
 	NSString * storePath = ...; // Full path for storing downloaded file data
 	[_queue addURLString:fromURLString withStorePath:storePath]; // add as URL string
+	// or
 	[_queue addURL:[NSURL URLWithString:fromURLString] withStorePath:storePath]; // add as URL
+	// or
+	[_queue addURLRequest:[[NSURLRequest alloc] init] withStorePath:storePath]; // add as setuped request
 }
 [_queue start]; // start queue
 ```
 
 
-### Track queue events via blocks 
+### Track queue events via blocks
+#### Swift
+```swift
+queue.onErrorOccurredHandler = { queue, error, downloadURL, storeFilePathURL in
+	print("onErrorOccurred, error: \(error), from: \(downloadURL), to: \(storeFilePathURL)")
+}
+
+queue.onFinishedHandler = { queue in
+	print("onFinished")
+}
+
+queue.onProgressHandler = { queue, progress in
+	print("onProgress, progress: \(progress)")
+}
+```
+#### Objective-C
 ```objective-c
 [_queue setOnErrorOccurredHandler:^(REDownloadTasksQueue * queue, NSError * error, NSURL * downloadURL, NSURL * storeFilePathURL) {
 	NSLog(@"onErrorOccurred, error: %@, from: %@, to: %@", error, downloadURL, storeFilePathURL);
@@ -53,7 +90,6 @@ for (...) { // iterate URL's
 [_queue setOnProgressHandler:^(REDownloadTasksQueue * queue, float progress) {
 	NSLog(@"onProgress, progress: %f %%", progress);
 }];
-[_queue start];
 ```
 
 ### Track queue events via notifications
@@ -100,11 +136,29 @@ for (...) { // iterate URL's
 										 selector:@selector(onOnDownloadTasksQueueProgressChangedNotification:)
 											 name:kREDownloadTasksQueueProgressChangedNotification
 										   object:nil /* or queue object */];
-
-[_queue start];
 ```
 
 ### Track queue events via delegate
+#### Swift
+```swift
+//MARK: REDownloadTasksQueueDelegate
+func onREDownloadTasksQueueFinished(queue: REDownloadTasksQueue) {
+	// Process finished
+}
+
+func onREDownloadTasksQueue(queue: REDownloadTasksQueue, progress: Float) {
+	print("onProgress, progress: \(progress)")
+	// Process progressing
+}
+	
+func onREDownloadTasksQueue(queue: REDownloadTasksQueue, error: NSError?, downloadURL: NSURL?, storeURL: NSURL?) {
+	// Process error
+}
+
+// setup queue delegate
+queue.delegate = self
+```
+#### Objective-C
 ```objective-c
 #pragma mark - REDownloadTasksQueueDelegate
 - (void) onREDownloadTasksQueueFinished:(REDownloadTasksQueue *) queue {
@@ -126,7 +180,6 @@ for (...) { // iterate URL's
 
 // setup queue delegate
 [_queue setDelegate:self];
-[_queue start];
 ```
 
 
