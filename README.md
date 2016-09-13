@@ -30,8 +30,7 @@ pod 'REDownloadTasksQueue'
 #import "REDownloadTasksQueue.h" // include single queue header file
 	
 self.queue = [[REDownloadTasksQueue alloc] init]; // create and store strongly queue object
-for (...) // iterate URL's
-{
+for (...) { // iterate URL's
 	NSString * fromURLString = ...; // URL string for download file
 	NSString * storePath = ...; // Full path for storing downloaded file data
 	[_queue addURLString:fromURLString withStorePath:storePath]; // add as URL string
@@ -43,15 +42,15 @@ for (...) // iterate URL's
 
 ### Track queue events via blocks 
 ```objective-c
-[_queue setOnErrorOccurredHandler:^(REDownloadTasksQueue * queue, NSError * error, NSURL * downloadURL, NSURL * storeFilePathURL){
+[_queue setOnErrorOccurredHandler:^(REDownloadTasksQueue * queue, NSError * error, NSURL * downloadURL, NSURL * storeFilePathURL) {
 	NSLog(@"onErrorOccurred, error: %@, from: %@, to: %@", error, downloadURL, storeFilePathURL);
 }];
 
-[_queue setOnFinishedHandler:^(REDownloadTasksQueue * queue){
+[_queue setOnFinishedHandler:^(REDownloadTasksQueue * queue) {
 	NSLog(@"onFinished");
 }];
 
-[_queue setOnProgressHandler:^(REDownloadTasksQueue * queue, float progress){
+[_queue setOnProgressHandler:^(REDownloadTasksQueue * queue, float progress) {
 	NSLog(@"onProgress, progress: %f %%", progress);
 }];
 [_queue start];
@@ -60,8 +59,7 @@ for (...) // iterate URL's
 ### Track queue events via notifications
 ```objective-c
 #pragma mark - REDownloadTasksQueue notifications
-- (void) onOnDownloadTasksQueueErrorOccurredNotification:(NSNotification *) notification
-{
+- (void) onOnDownloadTasksQueueErrorOccurredNotification:(NSNotification *) notification {
 	NSDictionary * userInfo = [notification userInfo];
 	REDownloadTasksQueue * queue = [userInfo objectForKey:kREDownloadTasksQueueQueueKey];
 	id userObject = [userInfo objectForKey:kREDownloadTasksQueueUserObjectKey];
@@ -71,16 +69,14 @@ for (...) // iterate URL's
 	// Process error
 }
 
-- (void) onOnDownloadTasksQueueFinishedNotification:(NSNotification *) notification
-{
+- (void) onOnDownloadTasksQueueFinishedNotification:(NSNotification *) notification {
 	NSDictionary * userInfo = [notification userInfo];
 	REDownloadTasksQueue * queue = [userInfo objectForKey:kREDownloadTasksQueueQueueKey];
 	id userObject = [userInfo objectForKey:kREDownloadTasksQueueUserObjectKey];
 	// Process finished situation
 }
 
-- (void) onOnDownloadTasksQueueProgressChangedNotification:(NSNotification *) notification
-{
+- (void) onOnDownloadTasksQueueProgressChangedNotification:(NSNotification *) notification {
 	NSDictionary * userInfo = [notification userInfo];
 	REDownloadTasksQueue * queue = [userInfo objectForKey:kREDownloadTasksQueueQueueKey];
 	id userObject = [userInfo objectForKey:kREDownloadTasksQueueUserObjectKey];
@@ -111,14 +107,12 @@ for (...) // iterate URL's
 ### Track queue events via delegate
 ```objective-c
 #pragma mark - REDownloadTasksQueueDelegate
-- (void) onREDownloadTasksQueueFinished:(REDownloadTasksQueue *) queue
-{
+- (void) onREDownloadTasksQueueFinished:(REDownloadTasksQueue *) queue {
 	// Process finished
 }
 
 - (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue 
-					   progress:(float) progress
-{
+					   progress:(float) progress {
 	NSLog(@"onProgress, progress: %f %%", progress);
 	// Process progressing
 }
@@ -126,8 +120,7 @@ for (...) // iterate URL's
 - (void) onREDownloadTasksQueue:(REDownloadTasksQueue *) queue 
 						  error:(NSError *) error 
 					downloadURL:(NSURL *) downloadURL 
-					   storeURL:(NSURL *) storeURL
-{
+					   storeURL:(NSURL *) storeURL {
 	// Process error
 }
 
@@ -150,7 +143,7 @@ __weak SomeClassWhichHoldsQueue * weakSelf = self;
 ```objective-c
 __weak SomeClassWhichHoldsQueue * weakSelf = self;
 [REDownloadTasksQueue createWithRestorationID:weakSelf.restorationID 
-						 andCompletionHandler:^(REDownloadTasksQueue * restoredQueue, NSError * error){
+						 andCompletionHandler:^(REDownloadTasksQueue * restoredQueue, NSError * error) {
 							 NSLog(@"Restored");
 							 weakSelf.queue = restoredQueue;
 							 [restoredQueue start];
